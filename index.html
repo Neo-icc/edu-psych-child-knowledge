@@ -2452,27 +2452,58 @@ function runSearch(q){
   });
 }
 function gotoSearchResult(ds){
+  /* 保留当前搜索词，用于把页面滚动到关键词实际出现的位置：
+     用户点搜索结果后如果停在条目顶部，而关键词在中间小节，会以为"跳错了" */
+  const q = ($("#q").value||"").trim();
   closeSearch();
-  /* 理论条目类结果：按条目 id 直达（原实现只认 entry 字段，此字段在该类结果里并不存在） */
-  if(ds.kind==="entry") return showEntry(ds.id);
+  /* 在刚打开的条目页里，把第一个包含关键词的文本块滚到视口顶部；
+     fromSec>=0 时只在对应小节（①-⑥）范围内找，避免又被前面的定义文本拉回顶部。
+     注意：showEntry 会 setHash → hashchange → routeTo 二次渲染并重置滚动，
+     所以定位必须延迟到第二次渲染之后执行，否则滚动会被拉回顶部（"跳得不对"的根因） */
+  const locateKeyword = (root, fromSec=-1)=>{
+    if(!q) return;
+    setTimeout(()=>{
+      requestAnimationFrame(()=>{
+        const r = root || $("#v-entry");
+        if(!r) return;
+        const h3s = [...r.querySelectorAll("h3.sh")];
+        let cand = null;
+        r.querySelectorAll("h3,p,li,div").forEach(el=>{
+          if(cand) return;
+          if(el.children.length) return;               // 只看叶子文本块
+          if(fromSec>=0){
+            const secStart = h3s[fromSec];
+            if(!secStart) return;
+            if(!(secStart.compareDocumentPosition(el) & Node.DOCUMENT_POSITION_FOLLOWING)) return;
+            const nextSec = h3s[fromSec+1];
+            if(nextSec && (nextSec.compareDocumentPosition(el) & Node.DOCUMENT_POSITION_FOLLOWING)) return;
+          }
+          const t = (el.textContent||"").slice(0,300);
+          if(t.toLowerCase().includes(q.toLowerCase())) cand = el;
+        });
+        const target = cand || (fromSec>=0 ? h3s[fromSec] : null);
+        if(target){ try{ target.scrollIntoView({behavior:"smooth", block:"start"}); }catch(e){} }
+      });
+    }, 80);
+  };
+  if(ds.kind==="entry"){ showEntry(ds.id); locateKeyword(); return; }
   if(ds.kind==="thinker") return showThinker(ds.id);
   if(ds.kind==="item"){
-    return ds.entry ? showEntry(ds.entry) : showBrowseItem(ds.id);
+    if(ds.entry){ showEntry(ds.entry); locateKeyword(); }
+    else showBrowseItem(ds.id);
+    return;
   }
   if(ds.kind==="claim"){
     const c = CLAIMS.find(x=>x.id===ds.id);
-    if(c && c.entry) return showEntry(c.entry);
+    if(c && c.entry){ showEntry(c.entry); locateKeyword(); return; }
     if(c) return showThinker(c.thinker);
   }
-  /* 共识 / 分歧 / 应用类结果：打开对应条目并定位到该小节（①②③④⑤⑥ 六个部分） */
+  /* 共识 / 分歧 / 应用类结果：先定位到对应小节（①②③④⑤⑥ 六个部分），
+     再在该小节内滚动到关键词出现处 */
   if(ds.kind==="consensus" || ds.kind==="disagree" || ds.kind==="app"){
     showEntry(ds.id);
     const idx = {consensus:2, disagree:3, app:5}[ds.kind];
-    requestAnimationFrame(()=>{
-      const secs = $("#v-entry").querySelectorAll("h3.sh");
-      const t = secs[idx];
-      if(t){ try{ t.scrollIntoView({behavior:"smooth", block:"start"}); }catch(e){} }
-    });
+    locateKeyword($("#v-entry"), idx);
     return;
   }
   if(ds.entry) return showEntry(ds.entry);
