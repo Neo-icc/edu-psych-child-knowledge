@@ -168,6 +168,12 @@ ul.ls li::before{content:"—";position:absolute;left:0;color:var(--fg3)}
 .legend div:last-child{margin-bottom:0}
 .legend .dot{width:9px;height:9px;border-radius:50%}
 .legend .off{opacity:.32}
+/* 图例右侧的条数 + 底部当前可见规模：点击后的变化一眼可读数验证 */
+.legend .cnt{margin-left:auto;padding-left:10px;font-size:10px;color:var(--fg3);opacity:.85}
+.legend .lgfoot{
+  display:block;margin-top:8px;padding-top:7px;border-top:1px solid var(--line);
+  font-size:10px;color:var(--fg3);cursor:default;white-space:nowrap;
+}
 .nodeinfo{
   position:absolute;left:18px;bottom:18px;max-width:330px;
   background:color-mix(in srgb,var(--bg2) 95%,transparent);border:1px solid var(--line);
@@ -195,6 +201,9 @@ ul.ls li::before{content:"—";position:absolute;left:0;color:var(--fg3)}
 }
 .fbtn:hover{color:var(--fg2)}
 .fbtn.active{color:var(--fg);border-color:var(--accent);background:var(--bg2)}
+/* 筛选按钮上的实时条数：让每次点击都有明确的数字反馈 */
+.fbtn .cnt{display:inline-block;margin-left:6px;font-size:10.5px;color:var(--fg3);opacity:.85}
+.fbtn.active .cnt{color:var(--accent);opacity:1}
 .empty{color:var(--fg3);font-size:13px;padding:40px 0;text-align:center}
 
 /* ---------- 观点时间轴 ---------- */
@@ -309,13 +318,30 @@ ul.ls li::before{content:"—";position:absolute;left:0;color:var(--fg3)}
 }
 .sfilter button.on{color:var(--fg);border-color:var(--accent);background:var(--bg2)}
 
-/* ---------- 侧边栏完成度筛选 ---------- */
+/* ---------- 侧边栏学科领域筛选 ---------- */
 .navfilter{display:flex;gap:6px;padding:0 16px 10px;border-bottom:1px solid var(--line)}
-.navfilter button{
-  flex:1;min-height:32px;padding:6px;font-size:11px;border:1px solid var(--line);border-radius:4px;
-  background:transparent;color:var(--fg3);cursor:pointer;font-family:var(--sans);
+.navfilter select{
+  flex:1;width:100%;min-height:32px;padding:6px 8px;font-size:12px;
+  border:1px solid var(--line);border-radius:4px;
+  background:var(--bg2);color:var(--fg);cursor:pointer;font-family:var(--sans);
 }
-.navfilter button.on{color:var(--accent);border-color:var(--accent)}
+.navempty{
+  display:none;margin:10px 16px 0;padding:9px 11px;font-size:11.5px;color:var(--fg3);
+  border:1px dashed var(--line);border-radius:5px;text-align:center;
+}
+.navjump{cursor:pointer}
+.navjump:hover{color:var(--accent)}
+/* 网络图控制条：手机上没有滚轮，必须给按钮入口 */
+/* 放左上：避开左下角 .nodeinfo 与右下角 .legend，三者互不遮挡 */
+.netctrl{position:absolute;left:14px;top:14px;display:flex;gap:6px;z-index:5;flex-wrap:wrap;max-width:62%}
+.netctrl button{
+  min-height:30px;padding:6px 10px;font-size:11.5px;font-family:var(--sans);
+  border:1px solid var(--line);border-radius:5px;cursor:pointer;
+  background:color-mix(in srgb,var(--bg2) 94%,transparent);color:var(--fg2);
+  backdrop-filter:blur(8px);
+}
+.netctrl button:hover{color:var(--fg);border-color:var(--accent)}
+.netctrl button.on{color:var(--accent);border-color:var(--accent)}
 .progressbar{
   margin:12px 16px 14px;padding:11px 13px;border:1px solid var(--line);
   border-radius:6px;background:var(--bg);
@@ -377,6 +403,9 @@ ul.ls li::before{content:"—";position:absolute;left:0;color:var(--fg3)}
   .thgrid,.cards{grid-template-columns:1fr}
   #searchInner{padding:60px 18px 40px}
   .legend{top:auto;bottom:10px;right:10px;font-size:10.5px;padding:8px 10px}
+  /* 窄屏上点中节点后，左下角信息卡会压住图例左侧（色点与文字起始处），
+     这里把图例抬到信息卡上方，两者互不遮挡 */
+  #netwrap.hasinfo .legend{bottom:calc(18px + var(--nih,124px) + 8px)}
   #tlbar{padding:7px 12px 6px;gap:12px}
   .tl-legend{font-size:10.5px;gap:12px}
   .tl-legend .lhint{display:none}
@@ -392,6 +421,12 @@ ul.ls li::before{content:"—";position:absolute;left:0;color:var(--fg3)}
 .stat{border:1px solid var(--line);border-radius:6px;padding:15px 16px;background:var(--bg2)}
 .stat .n{font-family:var(--serif);font-size:26px;color:var(--accent);line-height:1.1}
 .stat .l{font-size:11px;color:var(--fg3);margin-top:5px;letter-spacing:.05em}
+/* 可点击的统计卡（关联网络构成）：原本无任何绑定，点了毫无反应 */
+.stat[data-conn]{cursor:pointer;transition:border-color .15s,transform .15s}
+.stat[data-conn]:hover{border-color:var(--accent);transform:translateY(-1px)}
+.stat[data-conn]:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.stat .go{font-size:10px;color:var(--fg3);margin-left:4px}
+.stat[data-conn]:hover .go{color:var(--accent)}
 .cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:10px;margin-top:16px}
 .card{
   border:1px solid var(--line);border-radius:6px;padding:14px 15px;background:var(--bg2);
@@ -415,17 +450,15 @@ ul.ls li::before{content:"—";position:absolute;left:0;color:var(--fg3)}
     </div>
     <div class="progressbar" id="progressbar"></div>
     <div class="navfilter" id="navfilter">
-      <button data-f="all" class="on">全部</button>
-      <button data-f="has">已有条目</button>
-      <button data-f="none">待生成</button>
+      <select id="navsel" aria-label="按学科领域筛选"></select>
     </div>
+    <div class="navempty" id="navempty">当前筛选下没有条目（共 0 条）</div>
     <nav id="nav"></nav>
   </aside>
   <main>
     <div class="topbar">
       <button id="menubtn" title="目录">☰</button>
       <div class="tab active" data-view="overview">概览</div>
-      <div class="tab" data-view="browse">分类导航</div>
       <div class="tab" data-view="entry">理论条目</div>
       <div class="tab" data-view="timeline">观点时间轴</div>
       <div class="tab" data-view="thinkers">人物</div>
@@ -444,7 +477,6 @@ ul.ls li::before{content:"—";position:absolute;left:0;color:var(--fg3)}
     </div>
 
     <div class="view on" id="v-overview"></div>
-    <div class="view" id="v-browse"></div>
     <div class="view" id="v-entry"></div>
     <div class="view wide" id="v-timeline">
       <div id="tlbar">
@@ -462,6 +494,12 @@ ul.ls li::before{content:"—";position:absolute;left:0;color:var(--fg3)}
       <div id="netwrap">
         <canvas id="net"></canvas>
         <div class="legend" id="legend"></div>
+        <div class="netctrl">
+          <button id="netzoomin">放大</button>
+          <button id="netzoomout">缩小</button>
+          <button id="netreset">重置</button>
+          <button id="netleaves">显示全部</button>
+        </div>
         <div class="nodeinfo" id="nodeinfo"></div>
       </div>
     </div>
@@ -570,6 +608,9 @@ function matchRelTheory(name){
 
 /* ============ 侧边栏 ============ */
 let navFilter = "all";
+/* 学科领域顺序取自条目真值，保证下拉选项与内容一致 */
+const DOMAIN_ORDER = [...new Set((ENTRIES||[]).map(e=>e.domain).filter(Boolean))];
+
 function buildNav(){
   const nav = $("#nav");
   let html = "";
@@ -580,13 +621,23 @@ function buildNav(){
         <span class="cnt">${nItems}</span></div><div class="grp-body">`;
     (sec.children||[]).forEach(l2=>{
       const hasKids = (l2.children||[]).length>0;
+      const ownItems = (l2.items||[]).length;
+      if(!hasKids && !ownItems){
+        /* 空分组（如 E 关联板块）：展开后什么都没有，改为直达关联网络，不留空壳 */
+        html += `<div class="grp" data-l2><div class="grp-title navjump" data-jump="net">${esc(l2.title)} →</div></div>`;
+        return;
+      }
       html += `<div class="grp" data-l2><div class="grp-title">${esc(l2.title)}</div><div class="grp-body">`;
       const pushItem = it=>{
-        const m = matchEntry(it);
-        const isStance = !m && STANCE_BY_TEXT.has(it);
+        /* 立场池优先：D 板块条目必须走 showStance，
+           否则会被 matchEntry 的模糊兜底抢成不相关的理论条目（历史上误判过 3 条） */
+        const isStance = STANCE_BY_TEXT.has(it);
+        const m = isStance ? null : matchEntry(it);
         const has = m || isStance;
+        const dom = m ? (m.domain||"") : "";
         html += `<div class="item${has?" has-entry":""}" data-item="${esc(it)}"
           data-entry="${m?esc(m.id):""}" data-stance="${isStance?"1":""}"
+          data-domain="${esc(dom)}"
           data-flag="${has?"has":"none"}">${esc(it)}</div>`;
       };
       if(hasKids){
@@ -607,28 +658,76 @@ function buildNav(){
     el.onclick = ()=> el.parentElement.classList.toggle("open");
   });
   nav.querySelectorAll("[data-l2] > .grp-title").forEach(el=>{
+    if(el.classList.contains("navjump")) return;
     el.onclick = ()=> el.parentElement.classList.toggle("open");
+  });
+  nav.querySelectorAll(".navjump").forEach(el=>{
+    el.onclick = ()=>{ setView(el.dataset.jump); closeMobileNav(); };
   });
   nav.querySelectorAll(".item").forEach(el=>{
     el.onclick = ()=>{
-      nav.querySelectorAll(".item.active").forEach(a=>a.classList.remove("active"));
-      el.classList.add("active");
       closeMobileNav();
       const id = el.dataset.entry;
       if(id) showEntry(id);
       else if(el.dataset.stance) showStance(el.dataset.item);
       else showBrowseItem(el.dataset.item);
+      /* 同一条目可被多个导航条目指向，highlightNav 只取文档序第一个会高亮错位
+         （实测 562 次点击中 108 次错位），这里以"被点击的那一条"为准 */
+      document.querySelectorAll("#nav .item.active").forEach(a=>a.classList.remove("active"));
+      el.classList.add("active");
     };
   });
   const first = nav.querySelector('.grp[data-sec="A"]');
   if(first) first.classList.add("open");
+  initNavFilter();
   applyNavFilter();
   renderProgress();
 }
-function applyNavFilter(){
+
+/* 侧边栏高亮同步：三个 show* 共用。
+   从深链接、搜索结果、相关推荐进入时也能定位到当前条目，并展开祖先分组。
+   用遍历比对而非选择器，避免条目名里的引号/特殊字符破坏选择器。 */
+function highlightNav(fn){
+  document.querySelectorAll("#nav .item.active").forEach(a=>a.classList.remove("active"));
+  let target = null;
+  document.querySelectorAll("#nav .item").forEach(x=>{ if(!target && fn(x)) target = x; });
+  if(!target) return;
+  target.classList.add("active");
+  let p = target.parentElement;
+  while(p && p.id !== "nav"){
+    if(p.classList && p.classList.contains("grp")) p.classList.add("open");
+    p = p.parentElement;
+  }
+  try{ target.scrollIntoView({block:"nearest"}); }catch(e){}
+}
+
+/* 学科领域下拉：选项与计数来自渲染后的条目，实时反映真实分布 */
+function initNavFilter(){
+  const sel = $("#navsel");
+  if(!sel) return;
+  const cnt = new Map();
   document.querySelectorAll("#nav .item").forEach(el=>{
-    const f = el.dataset.flag;
-    el.style.display = (navFilter==="all" || navFilter===f) ? "" : "none";
+    const d = el.dataset.domain || "";
+    cnt.set(d, (cnt.get(d)||0)+1);
+  });
+  const total = document.querySelectorAll("#nav .item").length;
+  const opts = [["all", "全部领域", total]];
+  DOMAIN_ORDER.forEach(d=>{ if(cnt.get(d)) opts.push([d, d, cnt.get(d)]); });
+  if(cnt.get("")) opts.push(["", "跨领域立场", cnt.get("")]);
+  if(!opts.some(o=> o[0] === navFilter)) navFilter = "all";
+  sel.innerHTML = opts.map(([v,l,n])=>
+    `<option value="${esc(v)}"${v===navFilter?" selected":""}>${esc(l)} · ${n}</option>`).join("");
+  sel.value = navFilter;
+  sel.onchange = ()=>{ navFilter = sel.value; applyNavFilter(); };
+}
+
+function applyNavFilter(){
+  let visible = 0;
+  document.querySelectorAll("#nav .item").forEach(el=>{
+    const d = el.dataset.domain || "";
+    const show = (navFilter==="all") || (navFilter===d);
+    el.style.display = show ? "" : "none";
+    if(show) visible++;
   });
   // 主题标题：其下全部条目被隐藏时也隐藏
   document.querySelectorAll("#nav .theme-title").forEach(el=>{
@@ -639,6 +738,16 @@ function applyNavFilter(){
     }
     el.style.display = any ? "" : "none";
   });
+  // 筛选非全部时，自动展开含有可见条目的分组
+  if(navFilter!=="all"){
+    document.querySelectorAll("#nav .grp").forEach(g=>{
+      const hasVisible = [...g.querySelectorAll(".item")].some(i=>i.style.display!=="none");
+      if(hasVisible) g.classList.add("open");
+    });
+  }
+  // 空状态：避免"点了筛选侧边栏变空白但没有任何提示"
+  const tip = $("#navempty");
+  if(tip) tip.style.display = visible ? "none" : "block";
 }
 function renderProgress(){
   const all = AREA_TOTAL || 1;
@@ -648,20 +757,7 @@ function renderProgress(){
     <div class="pl"><span>条目完成度</span><span>${done} / ${all}</span></div>
     <div class="pt"><div class="pf" style="width:${pct}%"></div></div>`;
 }
-$("#navfilter").querySelectorAll("button").forEach(b=>{
-  b.onclick = ()=>{
-    $("#navfilter").querySelectorAll("button").forEach(x=>x.classList.remove("on"));
-    b.classList.add("on");
-    navFilter = b.dataset.f;
-    applyNavFilter();
-    if(navFilter!=="all"){
-      document.querySelectorAll("#nav .grp").forEach(g=>{
-        const hasVisible = [...g.querySelectorAll(".item")].some(i=>i.style.display!=="none");
-        if(hasVisible) g.classList.add("open");
-      });
-    }
-  };
-});
+/* 筛选器已改为下拉 #navsel（学科领域维度），绑定与计数见 initNavFilter() */
 function countItems(sec){
   let n=0;
   (sec.children||[]).forEach(l2=>{
@@ -677,7 +773,9 @@ function setView(v, push=true){
   document.querySelectorAll(".tab").forEach(e=>e.classList.toggle("active", e.dataset.view===v));
   $("#v-"+v).classList.add("on");
   closeSearch();
-  if(push && v!=="entry"){ setHash(v==="overview" ? "" : v); }
+  /* entry 也必须写 hash：否则从条目页点「理论条目」标签不产生历史记录，
+     浏览器前进/后退会跳回上一个条目而不是上一个视图（"不能往返"的根因） */
+  if(push){ setHash(v==="overview" ? "" : v); }
   if(v==="net"){ resizeNet(); }
   if(v==="timeline"){ requestAnimationFrame(()=> buildTimeline()); }
 }
@@ -694,7 +792,7 @@ function renderEntryIndex(){
       每条条目包含：核心定义 / 核心论断 / 学界共识 / 学术分歧 / 实证基础 / 教育应用。
       点下方任一条目进入阅读，或从左侧分类导航浏览全部知识点。</p>`;
   byDomain.forEach((list, domain)=>{
-    h += `<h3 class="sh">${esc(domain)} <span style="font-size:11px;color:var(--fg3);font-weight:400">${list.length} 条</span></h3>
+    h += `<h3 class="sh" data-domain-block="${esc(domain)}">${esc(domain)} <span style="font-size:11px;color:var(--fg3);font-weight:400">${list.length} 条</span></h3>
       <div class="cards">`;
     list.forEach(e=>{
       const cl = CLAIMS.filter(c=>c.entry===e.id).length;
@@ -706,7 +804,7 @@ function renderEntryIndex(){
     h += `</div>`;
   });
   h += `<h3 class="sh">换个方式浏览</h3><div>
-      <span class="listlink" data-view-jump="browse">完整分类导航</span>
+      <span class="listlink" data-jump-index="1">条目总览</span>
       <span class="listlink" data-view-jump="timeline">观点时间轴</span>
       <span class="listlink" data-view-jump="thinkers">人物索引</span>
       <span class="listlink" data-view-jump="net">关联网络</span>
@@ -714,27 +812,70 @@ function renderEntryIndex(){
   $("#v-entry").innerHTML = h;
   const root = $("#v-entry");
   root.querySelectorAll("[data-entry]").forEach(el=> el.onclick = ()=> showEntry(el.dataset.entry));
-  root.querySelectorAll("[data-view-jump]").forEach(el=> el.onclick = ()=> setView(el.dataset.viewJump));
+  root.querySelectorAll("[data-view-jump],[data-jump-index]").forEach(el=> el.onclick = ()=>{
+    if(el.dataset.jumpIndex) gotoEntryIndex(); else setView(el.dataset.viewJump);
+  });
+}
+
+/* 回到条目总览（替代已移除的「分类导航」视图） */
+function gotoEntryIndex(){
+  renderEntryIndex();
+  setView("entry");
+}
+/* 从概览页的领域卡片进入：重建条目总览并滚动到该学科领域 */
+function gotoDomain(domain){
+  gotoEntryIndex();
+  requestAnimationFrame(()=>{
+    const el = [...$("#v-entry").querySelectorAll("[data-domain-block]")]
+      .find(d=> d.dataset.domainBlock === domain);
+    if(el){ try{ el.scrollIntoView({behavior:"smooth", block:"start"}); }catch(e){} }
+  });
+}
+
+/* 从概览页「关联网络构成」统计块进入：跳关联列表并预先选中该类型，
+   同时把滚动容器带回顶部，否则会停在上一页的滚动位置，看着像"没跳" */
+function gotoConnType(k){
+  listFilter = k;
+  renderList();
+  setView("list");
+  requestAnimationFrame(()=>{
+    const m = $("main");
+    if(m) m.scrollTop = 0;
+    const act = $("#v-list .fbtn.active");
+    if(act){ try{ act.scrollIntoView({block:"nearest", inline:"nearest"}); }catch(e){} }
+  });
 }
 
 document.querySelectorAll(".tab").forEach(t=> t.onclick=()=>{
-  // 从其它视图切到「理论条目」且当前没有内容时，展示条目总览
-  if(t.dataset.view==="entry" && !$("#v-entry").innerHTML.trim()) renderEntryIndex();
+  /* 正停留在某篇条目详情时点「理论条目」也应回到总览；
+     否则内容原封不动、只多压一条历史，按后退还是同一篇，像"没反应" */
+  if(t.dataset.view==="entry"){
+    const isIndex = $("#v-entry").querySelector("[data-domain-block]");
+    if(!$("#v-entry").innerHTML.trim() || !isIndex) renderEntryIndex();
+  }
   setView(t.dataset.view);
 });
 
 /* ============ 路由（URL hash 深链接） ============ */
-let suppressHash = false;
+/* 记录"期望到达的 hash"而不是布尔：
+   只有当 hashchange 的 hash 与它一致时才认定为自触发，
+   否则（用户前进/后退/改地址栏）正常路由。用布尔会在兜底窗口内吞掉真实导航。 */
+let suppressHash = null;
+let suppressTimer = null;
 function setHash(h){
-  if(location.hash === "#"+h) return;
-  suppressHash = true;
+  const target = "#"+h;
+  if(location.hash === target) return;
+  suppressHash = target;
   location.hash = h;
-  setTimeout(()=> suppressHash = false, 60);
+  /* 兜底：hashchange 未如期到达时也要解除抑制 */
+  if(suppressTimer) clearTimeout(suppressTimer);
+  suppressTimer = setTimeout(()=>{ suppressHash = null; }, 400);
 }
 function routeTo(h, push=true){
   const [kind, id] = (h||"").replace(/^#/,"").split("/");
   switch(kind){
-    case "browse": setView("browse", push); break;
+    /* 「分类导航」视图已移除，#browse 深链接向后兼容：跳条目总览 */
+    case "browse": gotoEntryIndex(); break;
     case "timeline": setView("timeline", push); break;
     case "thinkers": setView("thinkers", push); break;
     case "net": setView("net", push); break;
@@ -747,16 +888,23 @@ function routeTo(h, push=true){
       if(id) showThinker(id, push); else setView("thinkers", push);
       break;
     case "item":
-      if(id) showBrowseItem(decodeURIComponent(id), push); else setView("browse", push);
+      if(id) showBrowseItem(decodeURIComponent(id), push); else gotoEntryIndex();
       break;
     case "stance":
-      if(id) showStance(decodeURIComponent(id), push); else setView("browse", push);
+      if(id) showStance(decodeURIComponent(id), push); else gotoEntryIndex();
       break;
     default: setView("overview", push);
   }
 }
 window.addEventListener("hashchange", ()=>{
-  if(suppressHash) return;
+  /* setHash 自己触发的：消费抑制标记后返回；
+     用户主动前进/后退/改地址栏的：走正常路由 */
+  if(suppressHash !== null && location.hash === suppressHash){
+    suppressHash = null;
+    if(suppressTimer){ clearTimeout(suppressTimer); suppressTimer = null; }
+    return;
+  }
+  suppressHash = null;
   routeTo(location.hash);
 });
 
@@ -806,10 +954,10 @@ function renderOverview(){
     });
     h += `</div>`;
   }
-  h += `<h3 class="sh">关联网络构成</h3><div class="statgrid">
-    <div class="stat"><div class="n">${(CONN.stats||{}).agreement||0}</div><div class="l">共识关联</div></div>
-    <div class="stat"><div class="n">${(CONN.stats||{}).disagreement||0}</div><div class="l">分歧对立关联</div></div>
-    <div class="stat"><div class="n">${(CONN.stats||{}).lineage||0}</div><div class="l">衍生发展关联</div></div>
+  h += `<h3 class="sh">关联网络构成 <span style="font-size:11px;color:var(--fg3);font-weight:400">点任一类型查看关联列表</span></h3><div class="statgrid">
+    <div class="stat" data-conn="agreement" role="button" tabindex="0"><div class="n">${(CONN.stats||{}).agreement||0}</div><div class="l">共识关联<span class="go">→</span></div></div>
+    <div class="stat" data-conn="disagreement" role="button" tabindex="0"><div class="n">${(CONN.stats||{}).disagreement||0}</div><div class="l">分歧对立关联<span class="go">→</span></div></div>
+    <div class="stat" data-conn="lineage" role="button" tabindex="0"><div class="n">${(CONN.stats||{}).lineage||0}</div><div class="l">衍生发展关联<span class="go">→</span></div></div>
     <div class="stat"><div class="n">${THINKERS.length}</div><div class="l">人物节点</div></div>
   </div>
   <div class="notice">
@@ -817,49 +965,28 @@ function renderOverview(){
     <div class="nb">${AREA_DONE >= AREA_TOTAL
       ? `全部 ${AREA_TOTAL} 个核心知识分支均已覆盖；另有 ${ALL_NAV_ITEMS - AREA_TOTAL} 个元理论、理论分期与立场条目——元理论与分期已各自成条，立场池以跨条目索引呈现，全站 ${ALL_NAV_ITEMS} 个导航条目均有内容可读。`
       : `未完成的知识点在侧边栏标为「待生成」，点进去仍可看到同领域条目、相关人物与观点命题。`}
-      <br>侧边栏的「已有条目 / 待生成」筛选可快速切换。</div>
+      <br>侧边栏可按学科领域筛选以聚焦某一领域，也可直接用顶部搜索定位具体内容。</div>
   </div>`;
   $("#v-overview").innerHTML = h;
   $("#v-overview").querySelectorAll("[data-goto]").forEach(c=>{
-    c.onclick = ()=>{ setView("browse"); showBrowseGroup(c.dataset.goto); };
+    /* 「分类导航」标签已移除（与侧边栏重复）：领域卡片改跳条目总览并定位到该领域 */
+    c.onclick = ()=> gotoDomain(c.dataset.goto);
   });
   $("#v-overview").querySelectorAll("[data-view]").forEach(c=>{
     c.onclick = ()=> setView(c.dataset.view);
   });
+  /* 「关联网络构成」统计块原本没有任何绑定，点击无反应 —— 现改为跳关联列表并按类型筛选 */
+  $("#v-overview").querySelectorAll("[data-conn]").forEach(c=>{
+    const jump = ()=>{ closeMobileNav(); gotoConnType(c.dataset.conn); };
+    c.onclick = jump;
+    c.onkeydown = e=>{ if(e.key==="Enter" || e.key===" "){ e.preventDefault(); jump(); } };
+  });
 }
 
-/* ============ 分类导航视图 ============ */
-function renderBrowse(){
-  let h = `<h2 class="vt">全站分类导航</h2>
-    <div class="vsub">Browse · 对齐原站 AREAS / METATHEORY / HISTORY / STANCE / CONNECTIONS</div>`;
-  (NAV.sections||[]).forEach(sec=>{
-    h += `<h3 class="sh">${sec.code}. ${esc(sec.title)}</h3>`;
-    sec.children.forEach(l2=>{
-      h += `<div style="margin-bottom:20px"><div style="font-size:14px;color:var(--accent);margin-bottom:9px">
-        ${esc(l2.id)} ${esc(l2.title)}</div>`;
-      (l2.children||[]).forEach(l3=>{
-        h += `<div style="font-size:12.5px;color:var(--fg);margin:12px 0 7px">${esc(l3.title)}</div>`;
-        h += `<ul class="ls">` + l3.items.map(it=>{
-          const m = matchEntry(it);
-          return `<li>${m?`<span class="jump" data-entry="${esc(m.id)}" style="cursor:pointer;color:var(--fg);border-bottom:1px dotted var(--fg3)">${esc(it)}</span>`:esc(it)}</li>`;
-        }).join("") + `</ul>`;
-      });
-      if(!(l2.children||[]).length && (l2.items||[]).length){
-        h += `<ul class="ls">` + l2.items.map(it=>`<li>${esc(it)}</li>`).join("") + `</ul>`;
-      }
-      h += `</div>`;
-    });
-  });
-  $("#v-browse").innerHTML = h;
-  $("#v-browse").querySelectorAll(".jump").forEach(el=>{
-    el.onclick = ()=> showEntry(el.dataset.entry);
-  });
-}
-function showBrowseGroup(title){
-  setView("browse");
-  const el = [...$("#v-browse").querySelectorAll("div")].find(d=>d.textContent.trim().startsWith(title) && d.children.length===0);
-  if(el) el.scrollIntoView({behavior:"smooth",block:"center"});
-}
+/* ============ 分类导航视图 ============
+   已移除：该视图只是把侧边栏那棵树平铺一遍（同源同数据），且与侧边栏行为不一致
+   （D 板块立场条目在侧边栏可点、在这里是死文本）。分类树统一由侧边栏承载。
+   #browse 深链接保留向后兼容，改跳条目总览（见 routeTo）。 */
 
 /* ============ 条目详情 ============ */
 /* ============ 分歧：A（代表人物） vs B（代表人物） ============ */
@@ -1070,9 +1197,7 @@ function showEntry(id, push=true){
   if(!e){ return; }
   setView("entry", false);
   if(push) setHash("entry/"+id);
-  document.querySelectorAll("#nav .item.active").forEach(a=>a.classList.remove("active"));
-  const navItem = document.querySelector(`#nav .item[data-entry="${id}"]`);
-  if(navItem) navItem.classList.add("active");
+  highlightNav(x=> x.dataset.entry === id);
 
   const rels = RELS.filter(r=>{
     const a = matchRelTheory(r.from), b = matchRelTheory(r.to);
@@ -1081,7 +1206,7 @@ function showEntry(id, push=true){
   const myClaims = CLAIMS.filter(c=>c.entry===e.id);
   const domainSec = (NAV.sections||[]).find(s=>s.code==="A");
   let h = `<div class="crumb">
-      <a data-crumb="browse">分类导航</a><span class="sep">/</span>
+      <a data-crumb="index">条目总览</a><span class="sep">/</span>
       <span>${esc(e.domain)}</span><span class="sep">/</span>
       <span>${esc(e.title.split("·")[0].trim())}</span>
     </div>
@@ -1159,8 +1284,13 @@ function showEntry(id, push=true){
 
   const root = $("#v-entry");
   root.querySelectorAll("[data-entry]").forEach(el=> el.onclick = ()=> showEntry(el.dataset.entry));
-  root.querySelectorAll("[data-crumb]").forEach(el=> el.onclick = ()=> setView("browse"));
-  root.querySelectorAll("[data-view-jump]").forEach(el=> el.onclick = ()=> setView(el.dataset.viewJump));
+  root.querySelectorAll("[data-crumb]").forEach(el=> el.onclick = ()=>{
+    const c = el.dataset.crumb;
+    if(c === "index") gotoEntryIndex(); else setView(c);
+  });
+  root.querySelectorAll("[data-view-jump],[data-jump-index]").forEach(el=> el.onclick = ()=>{
+    if(el.dataset.jumpIndex) gotoEntryIndex(); else setView(el.dataset.viewJump);
+  });
   $("main").scrollTop = 0;
 }
 
@@ -1568,21 +1698,33 @@ let listFilter = "all";
 function renderList(){
   const f = listFilter;
   const items = RELS.filter(r=> f==="all" || r.type===f);
+  /* 各类型的真实条数（数据真值：43 / 36 / 28 = 107），按钮上直接标出来，
+     避免"点了但不知道有没有生效" */
+  const cnt = {all: RELS.length, agreement:0, disagreement:0, lineage:0};
+  RELS.forEach(r=>{ if(cnt[r.type]!==undefined) cnt[r.type]++; });
   let h = `<h2 class="vt">关联列表</h2>
-    <div class="vsub">Connections · ${items.length} 条关联</div>
+    <div class="vsub">Connections · ${items.length} 条关联${f==="all"?"":` · 已筛选：${({agreement:"共识关联",disagreement:"分歧对立关联",lineage:"衍生发展关联"})[f]||f}`}</div>
     <div class="filterbar">
       ${[["all","全部"],["agreement","共识关联"],["disagreement","分歧对立关联"],["lineage","衍生发展关联"]]
-        .map(([k,l])=>`<button class="fbtn${f===k?" active":""}" data-f="${k}">${l}</button>`).join("")}
+        .map(([k,l])=>`<button class="fbtn${f===k?" active":""}" data-f="${k}">${l}<span class="cnt">${cnt[k]}</span></button>`).join("")}
     </div>`;
   h += items.length ? items.map(relCard).join("") : `<div class="empty">暂无该类型关联</div>`;
   $("#v-list").innerHTML = h;
-  $("#v-list").querySelectorAll(".fbtn").forEach(b=> b.onclick=()=>{ listFilter=b.dataset.f; renderList(); });
+  $("#v-list").querySelectorAll(".fbtn").forEach(b=> b.onclick=()=>{
+    listFilter = b.dataset.f;
+    renderList();
+    const m = $("main"); if(m) m.scrollTop = 0;
+  });
 }
 
 /* ============ 待生成条目：不再死胡同 ============ */
 function showBrowseItem(text, push=true){
+  /* 立场条目从搜索结果或 #item 深链接进来时会落到这里，
+     统一兜底转给 showStance，否则会错误地显示"尚未生成标准条目"占位页 */
+  if(STANCE_BY_TEXT.has(text)){ showStance(text, push); return; }
   setView("entry", false);
   if(push) setHash("item/"+encodeURIComponent(text));
+  highlightNav(x=> x.dataset.item === text);
 
   // 定位该条目所在的领域与主题
   let domain = "", theme = "", sectionCode = "";
@@ -1600,11 +1742,19 @@ function showBrowseItem(text, push=true){
   const siblings = [];
   if(domain){
     for(const sec of (NAV.sections||[])){
+      /* 限定同一板块：不同板块可能有同名领域，会混入无关条目 */
+      if(sectionCode && sec.code!==sectionCode) continue;
       for(const l2 of (sec.children||[])){
         if(l2.title!==domain) continue;
-        (l2.children||[]).forEach(l3=>{
-          if(l3.title===theme) l3.items.forEach(it=>{ if(it!==text) siblings.push(it); });
-        });
+        if(theme){
+          (l2.children||[]).forEach(l3=>{
+            if(l3.title===theme) (l3.items||[]).forEach(it=>{ if(it!==text) siblings.push(it); });
+          });
+        } else {
+          /* 条目直接挂在领域下（没有主题层）时回退取同领域条目，
+             否则"同主题下的其他知识点"恒为空，页面成为死胡同 */
+          (l2.items||[]).forEach(it=>{ if(it!==text) siblings.push(it); });
+        }
       }
     }
   }
@@ -1621,7 +1771,7 @@ function showBrowseItem(text, push=true){
   ).slice(0,4);
 
   let h = `<div class="crumb">
-      <a data-crumb="browse">分类导航</a>
+      <a data-crumb="index">条目总览</a>
       ${domain?`<span class="sep">/</span><span>${esc(domain)}</span>`:""}
       ${theme?`<span class="sep">/</span><span>${esc(theme)}</span>`:""}
     </div>
@@ -1668,7 +1818,7 @@ function showBrowseItem(text, push=true){
       <span class="listlink" data-view-jump="timeline">观点时间轴（按人、按年代）</span>
       <span class="listlink" data-view-jump="thinkers">人物索引</span>
       <span class="listlink" data-view-jump="net">关联网络</span>
-      <span class="listlink" data-view-jump="browse">完整分类导航</span>
+      <span class="listlink" data-jump-index="1">条目总览</span>
     </div>`;
 
   $("#v-entry").innerHTML = h;
@@ -1676,8 +1826,13 @@ function showBrowseItem(text, push=true){
   root.querySelectorAll("[data-entry]").forEach(el=> el.onclick = ()=> showEntry(el.dataset.entry));
   root.querySelectorAll("[data-thinker]").forEach(el=> el.onclick = ()=> showThinker(el.dataset.thinker));
   root.querySelectorAll("[data-item]").forEach(el=> el.onclick = ()=> showBrowseItem(el.dataset.item));
-  root.querySelectorAll("[data-crumb]").forEach(el=> el.onclick = ()=> setView("browse"));
-  root.querySelectorAll("[data-view-jump]").forEach(el=> el.onclick = ()=> setView(el.dataset.viewJump));
+  root.querySelectorAll("[data-crumb]").forEach(el=> el.onclick = ()=>{
+    const c = el.dataset.crumb;
+    if(c === "index") gotoEntryIndex(); else setView(c);
+  });
+  root.querySelectorAll("[data-view-jump],[data-jump-index]").forEach(el=> el.onclick = ()=>{
+    if(el.dataset.jumpIndex) gotoEntryIndex(); else setView(el.dataset.viewJump);
+  });
   $("main").scrollTop = 0;
 }
 
@@ -1687,11 +1842,12 @@ function showStance(text, push=true){
   if(push) setHash("stance/"+encodeURIComponent(text));
   const st = STANCE_BY_TEXT.get(text);
   if(!st){ showBrowseItem(text, false); return; }
+  highlightNav(x=> x.dataset.item === text);
   const isAgree = st.kind === "agreement";
   const rel = (st.entries||[]).map(id=>ENTRIES.find(e=>e.id===id)).filter(Boolean);
 
   let h = `<div class="crumb">
-      <a data-crumb="browse">分类导航</a>
+      <a data-crumb="index">条目总览</a>
       <span class="sep">/</span><span>立场维度</span>
       <span class="sep">/</span><span>${isAgree?"共识池":"争议池"}</span>
     </div>
@@ -1725,19 +1881,72 @@ function showStance(text, push=true){
       <span class="listlink" data-view-jump="timeline">观点时间轴（按人、按年代）</span>
       <span class="listlink" data-view-jump="thinkers">人物索引</span>
       <span class="listlink" data-view-jump="net">关联网络</span>
-      <span class="listlink" data-view-jump="browse">完整分类导航</span>
+      <span class="listlink" data-jump-index="1">条目总览</span>
     </div>`;
 
   $("#v-entry").innerHTML = h;
   const root = $("#v-entry");
   root.querySelectorAll("[data-entry]").forEach(el=> el.onclick = ()=> showEntry(el.dataset.entry));
-  root.querySelectorAll("[data-crumb]").forEach(el=> el.onclick = ()=> setView("browse"));
-  root.querySelectorAll("[data-view-jump]").forEach(el=> el.onclick = ()=> setView(el.dataset.viewJump));
+  root.querySelectorAll("[data-crumb]").forEach(el=> el.onclick = ()=>{
+    const c = el.dataset.crumb;
+    if(c === "index") gotoEntryIndex(); else setView(c);
+  });
+  root.querySelectorAll("[data-view-jump],[data-jump-index]").forEach(el=> el.onclick = ()=>{
+    if(el.dataset.jumpIndex) gotoEntryIndex(); else setView(el.dataset.viewJump);
+  });
   $("main").scrollTop = 0;
 }
 
 /* ============ 关联网络力导向图 ============ */
-const netState = { nodes:[], edges:[], show:{agreement:true,disagreement:true,lineage:true}, drag:null, offX:0, offY:0, scale:1 };
+const netState = { nodes:[], edges:[], show:{agreement:true,disagreement:true,lineage:true},
+  drag:null, offX:0, offY:0, scale:1,
+  compact:false,     // 窄屏（手机）标记
+  showLeaves:true,   // 是否显示度数 <2 的叶子节点
+  userLeaves:false   // 用户是否手动切换过节点密度（切换后不再被自动策略覆盖）
+};
+
+/* 节点可见性统一计算 —— 两处规则必须走这一个函数，否则会互相覆盖：
+   1) 窄屏密度：手机默认隐藏度数 <2 且非 hub 的叶子
+      （177 个节点挤进 255×484 的可用区时平均间距仅约 26px，
+        而中文标签最小需求约 46px，标签会被避让算法整批丢弃，只剩无名的点）
+   2) 图例过滤：关闭某类关联后，只靠该类关联存在的节点隐藏 */
+function recomputeNetVisibility(){
+  netState.nodes.forEach(n=>{
+    let vis = true;
+    if(netState.compact && !netState.showLeaves && n.deg < 2 && !n.hub) vis = false;
+    if(vis){
+      const rel = netState.edges.filter(e=> e.a.id===n.id || e.b.id===n.id);
+      if(rel.length && !rel.some(e=> netState.show[e.type])) vis = false;
+    }
+    n.visible = vis;
+  });
+}
+
+/* 窄屏密度策略：画布宽度 < 700 视为紧凑模式（手机/窄窗口） */
+function applyNetDensity(){
+  const cv = $("#net");
+  /* 视图 display:none 时 clientWidth 为 0，必须兜底：
+     否则初始化时会被误判成窄屏，把 showLeaves 永久锁死为 false */
+  const W = (cv && cv.clientWidth) || 900;
+  netState.compact = W < 700;
+  /* 用户手动切换过之后就不再自动覆盖他的选择 */
+  if(!netState.userLeaves) netState.showLeaves = !netState.compact;
+  recomputeNetVisibility();
+  updateNetToggle();
+  /* 视口变化会改变紧凑模式下的可见节点数，图例底部的读数要跟着刷新 */
+  renderLegend();
+}
+
+function updateNetToggle(){
+  const btn = $("#netleaves");
+  if(!btn) return;
+  const shown = netState.nodes.filter(n=> n.visible!==false).length;
+  btn.classList.toggle("on", netState.showLeaves);
+  btn.textContent = netState.showLeaves
+    ? `只看核心节点`
+    : `显示全部 ${netState.nodes.length} 个`;
+  btn.title = `当前显示 ${shown} 个节点`;
+}
 function buildNet(){
   const map = new Map();
   const norms = [];
@@ -1774,6 +1983,7 @@ function buildNet(){
     n.r = 4 + Math.min(n.deg*1.1, 14);
     n.hub = n.deg>=4;
   });
+  applyNetDensity();
 }
 let simTicks = 0;
 function simulate(){
@@ -1921,7 +2131,7 @@ function drawNet(){
   });
   requestAnimationFrame(drawNet);
 }
-function resizeNet(){ const cv=$("#net"); if(cv){ cv.width=0; simTicks=0; } }
+function resizeNet(){ const cv=$("#net"); if(cv){ cv.width=0; simTicks=0; applyNetDensity(); } }
 
 function initNetInteraction(){
   const cv = $("#net");
@@ -1963,6 +2173,89 @@ function initNetInteraction(){
     const hit = netState.nodes.find(n=> n.visible!==false && Math.hypot(n.x-mx,n.y-my) < n.r+8);
     if(hit) showNodeInfo(hit);
   });
+
+  /* ---- 触摸：全站原本 0 个 touch 事件，手机上画布既不能拖动也不能缩放 ---- */
+  const netPt = (t)=>{
+    const r = cv.getBoundingClientRect();
+    return { x:(t.clientX-r.left-netState.offX)/netState.scale,
+             y:(t.clientY-r.top-netState.offY)/netState.scale };
+  };
+  const netHit = (p, pad)=> netState.nodes.find(n=> n.visible!==false
+    && Math.hypot(n.x-p.x, n.y-p.y) < n.r + (pad||8));
+  let tDist = null, tScale = 1, tStart = null, tMoved = false;
+
+  cv.addEventListener("touchstart", e=>{
+    if(e.touches.length===2){
+      tDist = Math.hypot(e.touches[0].clientX-e.touches[1].clientX,
+                         e.touches[0].clientY-e.touches[1].clientY);
+      tScale = netState.scale;
+      netState.drag=null; netState.panning=null;
+      /* 双指缩放后抬起第一根手指时不应被判定为"轻点选中" */
+      tMoved = true;
+    } else if(e.touches.length===1){
+      const p = netPt(e.touches[0]);
+      const hit = netHit(p, 10);
+      if(hit){ netState.drag = hit; }
+      else { netState.panning = {x:e.touches[0].clientX, y:e.touches[0].clientY,
+                                 ox:netState.offX, oy:netState.offY}; }
+      tStart = {x:e.touches[0].clientX, y:e.touches[0].clientY};
+      tMoved = false;
+    }
+  }, {passive:false});
+
+  cv.addEventListener("touchmove", e=>{
+    if(e.touches.length===2 && tDist){
+      e.preventDefault();
+      const d = Math.hypot(e.touches[0].clientX-e.touches[1].clientX,
+                           e.touches[0].clientY-e.touches[1].clientY);
+      netState.scale = Math.max(.35, Math.min(3, tScale*(d/tDist)));
+    } else if(e.touches.length===1){
+      e.preventDefault();
+      const p = netPt(e.touches[0]);
+      if(netState.drag){
+        netState.drag.x = p.x; netState.drag.y = p.y;
+        netState.drag.vx = netState.drag.vy = 0;
+        simTicks = 0;
+        showNodeInfo(netState.drag);
+      } else if(netState.panning){
+        netState.offX = netState.panning.ox + (e.touches[0].clientX-netState.panning.x);
+        netState.offY = netState.panning.oy + (e.touches[0].clientY-netState.panning.y);
+      }
+      if(tStart && Math.hypot(e.touches[0].clientX-tStart.x, e.touches[0].clientY-tStart.y) > 8) tMoved = true;
+    }
+  }, {passive:false});
+
+  cv.addEventListener("touchend", e=>{
+    if(!tMoved && e.changedTouches && e.changedTouches.length){
+      const hit = netHit(netPt(e.changedTouches[0]), 10);
+      if(hit) showNodeInfo(hit);
+    }
+    tDist=null; netState.drag=null; netState.panning=null; tStart=null;
+  });
+  /* 来电/手势被打断时清理状态，避免拖拽状态残留 */
+  cv.addEventListener("touchcancel", ()=>{
+    tDist=null; netState.drag=null; netState.panning=null; tStart=null; tMoved=true;
+  });
+
+  /* ---- 缩放 / 重置 / 密度按钮：手机没有滚轮，必须有按钮入口 ---- */
+  const zoomBy = (f)=>{
+    const r = cv.getBoundingClientRect(), mx = r.width/2, my = r.height/2;
+    const old = netState.scale, next = Math.max(.35, Math.min(3, old*f));
+    netState.offX = mx - (mx-netState.offX)*(next/old);
+    netState.offY = my - (my-netState.offY)*(next/old);
+    netState.scale = next;
+  };
+  const bind = (id, fn)=>{ const el = $(id); if(el) el.onclick = fn; };
+  bind("#netzoomin", ()=> zoomBy(1.2));
+  bind("#netzoomout", ()=> zoomBy(1/1.2));
+  bind("#netreset", ()=>{ netState.scale=1; netState.offX=0; netState.offY=0; });
+  bind("#netleaves", ()=>{
+    netState.showLeaves = !netState.showLeaves;
+    netState.userLeaves = true;
+    recomputeNetVisibility();
+    simTicks = 0;
+    updateNetToggle();
+  });
 }
 function showNodeInfo(n){
   const box = $("#nodeinfo");
@@ -1975,24 +2268,43 @@ function showNodeInfo(n){
       ${n.entry?`<span class="listlink" data-entry="${esc(n.entry.id)}" style="margin-top:6px">查看标准条目 ◆</span>`
         :`<span style="color:var(--fg3)">该理论尚未生成标准条目</span>`}</div>`;
   box.classList.add("on");
+  /* 记录信息卡实际高度，供窄屏下把图例顶上去（避免压住图例色点与文字） */
+  const wrap = $("#netwrap");
+  if(wrap){
+    wrap.classList.add("hasinfo");
+    wrap.style.setProperty("--nih", box.offsetHeight + "px");
+  }
   box.querySelectorAll("[data-entry]").forEach(el=> el.onclick=()=>showEntry(el.dataset.entry));
 }
 function renderLegend(){
   const L = [["agreement","共识关联","--agree"],["disagreement","分歧对立关联","--disagree"],["lineage","衍生发展关联","--lineage"]];
+  /* 每种类型的连线数（按画布实际边数统计，含 lineage 的 chain 展开） */
+  const cnt = {};
+  netState.edges.forEach(e=>{ cnt[e.type] = (cnt[e.type]||0) + 1; });
+  /* 当前真正画出来的规模：节点 / 连线。点击图例后这两个数会立刻变，
+     手机窄屏上连线差别细微时也能确定"到底生效了没有" */
+  const vis = netState.nodes.filter(n=> n.visible!==false);
+  const visSet = new Set(vis.map(n=>n.id));
+  const visEdges = netState.edges.filter(e=>
+    netState.show[e.type] && visSet.has(e.a.id) && visSet.has(e.b.id)).length;
+
   $("#legend").innerHTML = L.map(([k,l,v])=>
-    `<div data-k="${k}" class="${netState.show[k]?"":"off"}"><span class="dot" style="background:var(${v})"></span>${l}</div>`
-  ).join("");
+    `<div data-k="${k}" class="${netState.show[k]?"":"off"}" role="switch" tabindex="0"
+      aria-checked="${netState.show[k]?"true":"false"}"
+      title="点击${netState.show[k]?"隐藏":"显示"}${l}"><span class="dot" style="background:var(${v})"></span>${l}<span class="cnt">${cnt[k]||0}</span></div>`
+  ).join("") + `<span class="lgfoot">当前显示 ${vis.length}/${netState.nodes.length} 节点 · ${visEdges} 连线</span>`;
+
   $("#legend").querySelectorAll("[data-k]").forEach(el=>{
-    el.onclick = ()=>{
+    const toggle = ()=>{
       const k = el.dataset.k;
       netState.show[k] = !netState.show[k];
-      netState.nodes.forEach(n=>{
-        n.visible = true;
-        const rel = netState.edges.filter(e=> e.a.id===n.id||e.b.id===n.id);
-        if(rel.length && !rel.some(e=>netState.show[e.type])) n.visible = false;
-      });
+      /* 走统一函数，避免把窄屏隐藏的叶子节点又全部显示出来 */
+      recomputeNetVisibility();
       renderLegend();
+      updateNetToggle();
     };
+    el.onclick = toggle;
+    el.onkeydown = e=>{ if(e.key==="Enter" || e.key===" "){ e.preventDefault(); toggle(); } };
   });
 }
 
@@ -2211,7 +2523,6 @@ $("#themebtn").onclick = ()=>{
 /* ============ 启动 ============ */
 buildNav();
 renderOverview();
-renderBrowse();
 renderThinkers();
 renderList();
 renderSearchFilter();
