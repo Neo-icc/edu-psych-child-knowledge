@@ -362,13 +362,6 @@ ul.ls li::before{content:"—";position:absolute;left:0;color:var(--fg3)}
 }
 .netctrl button:hover{color:var(--fg);border-color:var(--accent)}
 .netctrl button.on{color:var(--accent);border-color:var(--accent)}
-.progressbar{
-  margin:12px 16px 14px;padding:11px 13px;border:1px solid var(--line);
-  border-radius:6px;background:var(--bg);
-}
-.progressbar .pl{font-size:11px;color:var(--fg3);margin-bottom:7px;display:flex;justify-content:space-between}
-.progressbar .pt{height:4px;background:var(--bg3);border-radius:2px;overflow:hidden}
-.progressbar .pf{height:100%;background:var(--accent);border-radius:2px;transition:width .5s}
 
 /* ---------- 条目页辅助 ---------- */
 .crumb{font-size:11.5px;color:var(--fg3);margin-bottom:16px}
@@ -469,7 +462,6 @@ ul.ls li::before{content:"—";position:absolute;left:0;color:var(--fg3)}
     <div class="searchbox">
       <input id="q" placeholder="搜索全部内容（含共识/分歧/观点）" autocomplete="off">
     </div>
-    <div class="progressbar" id="progressbar"></div>
     <div class="navfilter" id="navfilter">
       <select id="navsel" aria-label="按学科领域筛选"></select>
     </div>
@@ -707,7 +699,6 @@ function buildNav(){
   if(first) first.classList.add("open");
   initNavFilter();
   applyNavFilter();
-  renderProgress();
 }
 
 /* 侧边栏高亮同步：三个 show* 共用。
@@ -775,14 +766,7 @@ function applyNavFilter(){
   const tip = $("#navempty");
   if(tip) tip.style.display = visible ? "none" : "block";
 }
-function renderProgress(){
-  const all = AREA_TOTAL || 1;
-  const done = AREA_DONE;
-  const pct = (done/all*100).toFixed(1);
-  $("#progressbar").innerHTML = `
-    <div class="pl"><span>条目完成度</span><span>${done} / ${all}</span></div>
-    <div class="pt"><div class="pf" style="width:${pct}%"></div></div>`;
-}
+/* 「条目完成度」进度条已删除：完成度长期 100% 后是纯展示信息，无操作含义 */
 /* 筛选器已改为下拉 #navsel（学科领域维度），绑定与计数见 initNavFilter() */
 function countItems(sec){
   let n=0;
