@@ -645,8 +645,12 @@ function buildNav(){
       const hasKids = (l2.children||[]).length>0;
       const ownItems = (l2.items||[]).length;
       if(!hasKids && !ownItems){
-        /* 空分组（如 E 关联板块）：展开后什么都没有，改为直达关联网络，不留空壳 */
-        html += `<div class="grp" data-l2><div class="grp-title navjump" data-jump="net">${esc(l2.title)} →</div></div>`;
+        /* 空分组（如 E 关联板块）：按标题识别关联类型，直达关联网络并只显示该类型 */
+        const t2 = l2.title||"";
+        const conn = t2.includes("共识") ? "agreement"
+                   : t2.includes("分歧") ? "disagreement"
+                   : t2.includes("衍生") ? "lineage" : "";
+        html += `<div class="grp" data-l2><div class="grp-title navjump" data-jump="net"${conn?` data-conn="${conn}"`:""}>${esc(l2.title)} →</div></div>`;
         return;
       }
       html += `<div class="grp" data-l2><div class="grp-title">${esc(l2.title)}</div><div class="grp-body">`;
@@ -684,7 +688,7 @@ function buildNav(){
     el.onclick = ()=> el.parentElement.classList.toggle("open");
   });
   nav.querySelectorAll(".navjump").forEach(el=>{
-    el.onclick = ()=>{ setView(el.dataset.jump); closeMobileNav(); };
+    el.onclick = ()=>{ if(el.dataset.conn) gotoNetType(el.dataset.conn); else setView(el.dataset.jump); closeMobileNav(); };
   });
   nav.querySelectorAll(".item").forEach(el=>{
     el.onclick = ()=>{
@@ -867,6 +871,18 @@ function gotoConnType(k){
     if(act){ try{ act.scrollIntoView({block:"nearest", inline:"nearest"}); }catch(e){} }
   });
 }
+/* 从侧边栏 E「关联板块」进入：直达关联网络，并且只显示所选类型。
+   此前三个入口都只 open 同一个视图、图完全一样，等于没区别 */
+function gotoNetType(type){
+  setView("net");
+  netState.show = {
+    agreement: type==="agreement",
+    disagreement: type==="disagreement",
+    lineage: type==="lineage",
+  };
+  applyNetDensity();
+  requestAnimationFrame(()=> drawNet());
+}
 
 document.querySelectorAll(".tab").forEach(t=> t.onclick=()=>{
   /* 正停留在某篇条目详情时点「理论条目」也应回到总览；
@@ -991,13 +1007,6 @@ function renderOverview(){
     <div class="stat" data-conn="disagreement" role="button" tabindex="0"><div class="n">${(CONN.stats||{}).disagreement||0}</div><div class="l">分歧对立关联<span class="go">→</span></div></div>
     <div class="stat" data-conn="lineage" role="button" tabindex="0"><div class="n">${(CONN.stats||{}).lineage||0}</div><div class="l">衍生发展关联<span class="go">→</span></div></div>
     <div class="stat" data-view="thinkers" role="button" tabindex="0"><div class="n">${THINKERS.length}</div><div class="l">人物节点<span class="go">→</span></div></div>
-  </div>
-  <div class="notice">
-    <div class="nt2">共 ${ENTRIES.length} 篇详解条目，覆盖 ${AREA_DONE} / ${AREA_TOTAL} 个核心知识点（${(AREA_DONE/(AREA_TOTAL||1)*100).toFixed(1)}%）。</div>
-    <div class="nb">${AREA_DONE >= AREA_TOTAL
-      ? `全部核心知识点均已完成详解；另有 ${ALL_NAV_ITEMS - AREA_TOTAL} 个理论分期、跨理论共识与争论等延伸内容，同样可以点开阅读。全站 ${ALL_NAV_ITEMS} 个知识点均有内容可看，没有空链接。`
-      : `尚未完成的知识点在左侧目录中标注为「待生成」，点开后仍可看到同领域的其他条目、相关人物与观点。`}
-      <br>想集中看某个领域，可用左侧目录按领域筛选；想直接找某个概念，可用顶部搜索框。</div>
   </div>`;
   $("#v-overview").innerHTML = h;
   $("#v-overview").querySelectorAll("[data-goto]").forEach(c=>{
