@@ -381,6 +381,7 @@ ul.ls li::before{content:"—";position:absolute;left:0;color:var(--fg3)}
   background:var(--bg3);border:1px solid var(--line);overflow:hidden;
 }
 .thphbox .thph{width:100%;height:100%;object-fit:cover;display:block}
+.thph-icon{width:56%;height:56%;color:var(--fg3);opacity:.55}
 .thph-miss{
   position:absolute;inset:0;display:flex;align-items:center;justify-content:center;
   font-family:var(--serif);font-size:16px;color:var(--fg3);
@@ -1887,20 +1888,22 @@ function renderThinkers(){
     el.onclick = ()=> showThinker(el.dataset.t);
   });
 }
-/* 人物肖像：单人一个圆头像；双人组合两个小圆对角叠放；加载失败退回首字缩写 */
+/* 人物肖像：统一 62px 圆头像；双人组合两个 44px 小圆对角叠放；
+   照片加载失败或暂无照片时退化为中性人形剪影图标（不出现名字文字，避免头像混乱） */
 function thinkerPhotoHtml(tid, cls){
   const t = THINKERS.find(x=>x.id===tid);
   const ph = THINKER_PHOTOS[tid];
-  const initials = ((t && t.name) || tid).slice(0,2);
   const duo = ph && typeof ph === "object";
   const srcs = duo ? [ph.a, ph.b].filter(Boolean) : (typeof ph === "string" ? [ph] : []);
   if(srcs.length){
     return `<div class="thphbox ${esc(cls||"")}${duo?" duo":""}">
-      <span class="thph-miss">${esc(initials)}</span>
+      <svg class="thph-icon" viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>
       ${srcs.map(src=>`<img class="thph" src="${src}" alt="${esc((t&&t.name)||"")} 肖像" loading="lazy" onerror="this.style.display='none'">`).join("")}
     </div>`;
   }
-  return `<div class="thphbox ${esc(cls||"")}"><span class="thph-miss">${esc(initials)}</span></div>`;
+  return `<div class="thphbox ${esc(cls||"")}">
+    <svg class="thph-icon" viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>
+  </div>`;
 }
 function showThinker(tid, push=true){
   if(!ENTRIES_READY){ ensureEntries().then(()=> showThinker(tid, push)); return; }
