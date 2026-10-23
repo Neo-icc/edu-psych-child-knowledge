@@ -382,8 +382,13 @@ ul.ls li::before{content:"—";position:absolute;left:0;color:var(--fg3)}
   width:62px;height:62px;flex:0 0 62px;position:relative;border-radius:50%;
   background:var(--bg3);border:1px solid var(--line);overflow:hidden;
 }
-.thphbox .thph{width:100%;height:100%;object-fit:cover;object-position:50% 22%;display:block}
-.thph-icon{width:56%;height:56%;color:var(--fg3);opacity:.55}
+/* 兜底图标：绝对定位居中垫底；照片浮在上层（relative）加载后完全盖住图标，
+   加载失败 onerror 隐藏照片后图标自然露出 */
+.thph-icon{
+  position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);
+  width:56%;height:56%;color:var(--fg3);opacity:.55;
+}
+.thphbox .thph{position:relative;width:100%;height:100%;object-fit:cover;object-position:50% 22%;display:block}
 .thph-miss{
   position:absolute;inset:0;display:flex;align-items:center;justify-content:center;
   font-family:var(--serif);font-size:16px;color:var(--fg3);
@@ -395,6 +400,7 @@ ul.ls li::before{content:"—";position:absolute;left:0;color:var(--fg3)}
 }
 .thphbox.duo .thph:first-child{left:0;top:0}
 .thphbox.duo .thph:last-child{right:0;bottom:0}
+.thphbox.duo .thph-icon{display:none}
 .thintro{
   font-size:13.5px;color:var(--fg2);margin-top:7px;line-height:1.7;
   display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;
@@ -1976,8 +1982,11 @@ function renderThinkers(){
 function thinkerPhotoHtml(tid, cls){
   const t = THINKERS.find(x=>x.id===tid);
   const ph = THINKER_PHOTOS[tid];
-  const duo = ph && typeof ph === "object";
-  const srcs = duo ? [ph.a, ph.b].filter(Boolean) : (typeof ph === "string" ? [ph] : []);
+  /* 双人组合仅在两张照片都存在时用双圆布局；只有一张时按单人整圆显示 */
+  const duo = ph && typeof ph === "object" && !!ph.a && !!ph.b;
+  const srcs = duo ? [ph.a, ph.b]
+    : (typeof ph === "string" && ph ? [ph]
+       : (ph && typeof ph === "object" ? [ph.a || ph.b].filter(Boolean) : []));
   if(srcs.length){
     return `<div class="thphbox ${esc(cls||"")}${duo?" duo":""}">
       <svg class="thph-icon" viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>
