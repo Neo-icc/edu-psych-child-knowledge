@@ -2711,33 +2711,56 @@ $("#sharebtn").onclick = async ()=>{
   setTimeout(()=>{ btn.textContent = "分享此页"; btn.classList.remove("ok"); }, 1600);
 };
 
-/* ============ 主题（记忆偏好） ============ */
-(function initTheme(){
-  let saved = null;
-  try{ saved = localStorage.getItem("edu-nav-theme"); }catch(e){}
-  if(saved){
-    document.documentElement.dataset.theme = saved;
-    $("#themebtn").textContent = saved==="dark" ? "浅色" : "深色";
+/* ============ 主题（自动跟随时间 + 手动记忆） ============ */
+/* 三种模式：auto（跟随设备时间，白天浅色 / 夜间深色）、light、dark。
+   默认 auto；手动切换后记忆偏好。 */
+const DAY_HOUR = 6, NIGHT_HOUR = 18;   // 06:00–18:00 视为白天
+function autoTheme(){
+  const h = new Date().getHours();
+  return (h >= DAY_HOUR && h < NIGHT_HOUR) ? "light" : "dark";
+}
+let themeMode = "auto";
+try{ themeMode = localStorage.getItem("edu-nav-theme") || "auto"; }catch(e){}
+function applyTheme(mode, animate){
+  themeMode = mode;
+  const actual = mode === "auto" ? autoTheme() : mode;
+  if(animate){
+    const html = document.documentElement;
+    html.classList.add("theme-anim");
+    setTimeout(()=> html.classList.remove("theme-anim"), 320);
   }
-})();
-$("#themebtn").onclick = ()=>{
-  const html = document.documentElement;
-  const dark = html.dataset.theme==="dark";
-  const next = dark ? "light" : "dark";
-  /* 主题切换的颜色过渡：临时挂一个类，300ms 后移除 */
-  html.classList.add("theme-anim");
-  setTimeout(()=> html.classList.remove("theme-anim"), 320);
-  html.dataset.theme = next;
-  $("#themebtn").textContent = dark ? "深色" : "浅色";
-  try{ localStorage.setItem("edu-nav-theme", next); }catch(e){}
+  document.documentElement.dataset.theme = actual;
+  const btn = $("#themebtn");
+  if(btn){
+    const label = mode === "auto" ? "自动" : mode === "dark" ? "深色" : "浅色";
+    btn.textContent = label;
+    btn.title = "点击切换主题：自动 → 浅色 → 深色"
+      + (mode === "auto" ? "（当前跟随时间：白天浅色 / 夜间深色）" : "");
+  }
+  try{ localStorage.setItem("edu-nav-theme", mode); }catch(e){}
   // 主题变化后重绘画布（网络图未初始化时跳过，懒初始化会自行按新主题绘制）
   renderTlLegend();
   if($("#v-timeline").classList.contains("on")) buildTimeline();
-  if(netBuilt){
+  if(typeof netBuilt!=="undefined" && netBuilt){
     renderLegend();
     if($("#v-net").classList.contains("on")) drawNet();
   }
+}
+applyTheme(themeMode, false);
+$("#themebtn").onclick = ()=>{
+  applyTheme(themeMode === "auto" ? "light" : themeMode === "light" ? "dark" : "auto", true);
 };
+/* 自动模式下跨时段跟随：每 30 秒检查一次，越过 6:00 / 18:00 边界就平滑切换；
+   回到前台时立即校准（长时间休眠后能马上纠正） */
+function syncAutoTheme(){
+  if(themeMode !== "auto") return;
+  const before = document.documentElement.dataset.theme;
+  if(before !== autoTheme()) applyTheme("auto", true);
+}
+setInterval(syncAutoTheme, 30000);
+document.addEventListener("visibilitychange", ()=>{
+  if(!document.hidden) syncAutoTheme();
+});
 
 /* ============ 启动 ============ */
 /* 首屏只做必要的事：侧边栏 + 概览 + 搜索索引。
