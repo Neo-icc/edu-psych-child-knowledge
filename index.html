@@ -1,6 +1,19 @@
 <!DOCTYPE html>
 <html lang="zh-CN" data-theme="dark">
 <head>
+<script id="theme-preinit">
+/* 首帧前应用主题，避免浅色偏好下先闪深色（key 与主脚本一致：edu-nav-theme = auto|light|dark） */
+(function(){
+  try{
+    var m = localStorage.getItem("edu-nav-theme") || "auto";
+    if(m === "auto"){
+      var h = new Date().getHours();
+      m = (h >= 6 && h < 18) ? "light" : "dark";
+    }
+    document.documentElement.dataset.theme = (m === "light") ? "light" : "dark";
+  }catch(e){}
+})();
+</script>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>教育学 · 心理学 · 脑科学 · 儿童成长 知识全景导航</title>
@@ -622,8 +635,114 @@ ul.ls li::before{content:"—";position:absolute;left:0;color:var(--fg3)}
 .card .ct{font-size:15.5px;color:var(--fg);margin-top:5px;line-height:1.5}
 .card .cd{font-size:13.5px;color:var(--fg3);margin-top:6px}
 </style>
+<style id="boot-style">
+#boot{position:fixed;inset:0;z-index:99999;display:flex;align-items:center;justify-content:center;
+  background:var(--bg,#12100e);color:var(--fg,#e8e4dd);font-family:var(--sans,system-ui,sans-serif);
+  transition:opacity .28s ease;padding:24px;text-align:center}
+#boot.boot-out{opacity:0}
+.boot-inner{max-width:420px}
+.boot-spin{width:26px;height:26px;margin:0 auto 18px;border-radius:50%;
+  border:2px solid rgba(128,128,128,.25);
+  border:2px solid color-mix(in oklab, var(--fg,#e8e4dd) 18%, transparent);
+  border-top-color:var(--accent,#b4674a);animation:bootspin .8s linear infinite}
+@keyframes bootspin{to{transform:rotate(360deg)}}
+@media (prefers-reduced-motion: reduce){.boot-spin{animation:none}}
+.boot-t{font-size:15px;letter-spacing:.02em}
+.boot-s{margin-top:9px;font-size:12.5px;opacity:.6;line-height:1.7}
+.boot-err{font-size:15px;margin-bottom:10px}
+.boot-err-s{font-size:12.5px;opacity:.7;line-height:1.75}
+.boot-btn{margin-top:16px;padding:8px 20px;font:inherit;font-size:13.5px;cursor:pointer;
+  color:var(--fg,#e8e4dd);background:transparent;border:1px solid var(--line,rgba(128,128,128,.45));
+  border-radius:5px;transition:border-color .15s}
+.boot-btn:hover{border-color:var(--accent,#b4674a)}
+</style>
 </head>
 <body>
+<div id="boot">
+  <div class="boot-inner" id="boot-inner">
+    <div class="boot-spin" aria-hidden="true"></div>
+    <div class="boot-t">正在加载知识全景…</div>
+    <div class="boot-s">教育学 · 心理学 · 脑科学 · 儿童成长</div>
+  </div>
+</div>
+<noscript>
+  <div style="position:fixed;inset:0;z-index:99999;display:flex;align-items:center;justify-content:center;padding:24px;background:var(--bg,#12100e);color:var(--fg,#e8e4dd);font-family:var(--sans,system-ui,sans-serif);text-align:center">
+    <div style="max-width:400px">
+      <div style="font-size:15px;margin-bottom:10px">本站需要启用 JavaScript</div>
+      <div style="font-size:12.5px;opacity:.68;line-height:1.8">页面内容由脚本渲染。请在浏览器设置中允许 JavaScript 后重新加载。</div>
+    </div>
+  </div>
+</noscript>
+<script id="boot-guard">
+/* 首屏占位守卫：主脚本正常渲染后自动移除；资源失败 / 运行时异常 / 超时 都给出可重试提示。
+   独立于主逻辑，主逻辑即使整段抛错也不会导致白屏。 */
+(function(){
+  var boot = document.getElementById("boot");
+  if(!boot) return;
+  var inner = document.getElementById("boot-inner");
+  var finished = false;
+
+  function hide(){
+    if(finished) return;
+    finished = true;
+    boot.className = "boot-out";
+    setTimeout(function(){ if(boot.parentNode) boot.parentNode.removeChild(boot); }, 340);
+  }
+
+  function fail(title, detail){
+    if(finished) return;
+    finished = true;
+    if(inner){
+      inner.innerHTML = '<div class="boot-err">' + title + '</div>'
+        + '<div class="boot-err-s">' + detail + '</div>'
+        + '<button class="boot-btn" type="button">重新加载</button>';
+      var b = inner.querySelector("button");
+      if(b) b.onclick = function(){ location.reload(); };
+    }
+  }
+
+  /* 渲染完成的判定：
+     ① 某个 .view 已切为 .on 且有实质内容 → 正常；
+     ② 侧边栏导航已生成（.item 是条目的实际标签，不是 <a>）也算成功——
+        说明主脚本跑通、核心数据已就位；此时视图空是页面自身路由的问题，
+        不该让用户看到「加载失败」。 */
+  function painted(){
+    var v = document.querySelector(".view.on");
+    if(v && v.textContent.trim().length > 30) return true;
+    var nav = document.getElementById("nav");
+    if(nav && nav.querySelectorAll(".item, a").length > 20) return true;
+    return false;
+  }
+
+  var t0 = Date.now(), softDone = false;
+  var timer = setInterval(function(){
+    if(finished){ clearInterval(timer); return; }
+    if(painted()){ clearInterval(timer); hide(); return; }
+
+    var el = Date.now() - t0;
+    /* 弱网：只温和提示，不判定失败（慢不等于坏） */
+    if(el > 12000 && !softDone){
+      softDone = true;
+      var t = boot.querySelector(".boot-t"), s2 = boot.querySelector(".boot-s");
+      if(t) t.textContent = "正在加载，网络似乎有点慢…";
+      if(s2) s2.textContent = "首次访问需下载约 1.5 MB 数据，请稍候";
+    }
+    /* 硬失败只在「长时间完全没有任何渲染」时给，避免慢网误报 */
+    if(el > 90000){
+      clearInterval(timer);
+      fail("加载超时", "页面在 90 秒内仍未完成渲染，可能是网络中断。请检查网络后重试。");
+    }
+  }, 150);
+
+  /* 资源加载失败不冒泡，必须在捕获阶段监听 */
+  window.addEventListener("error", function(e){
+    var t = e && e.target;
+    if(t && t.tagName === "SCRIPT"){
+      fail("加载失败", "数据文件未能加载（" + (t.src || "脚本") + "），可能是网络中断。");
+    }
+  }, true);
+})();
+</script>
 <div id="app">
   <div id="drawerov"></div>
   <aside>
@@ -1159,9 +1278,13 @@ function routeTo(h, push=true){
     /* 「分类导航」视图已移除，#browse 深链接向后兼容：跳条目总览 */
     case "browse": gotoEntryIndex(); break;
     case "timeline": setView("timeline", push); break;
-    case "thinkers": setView("thinkers", push); break;
+    case "thinkers":
+      if(!$("#v-thinkers").querySelector(".thcard")) renderThinkers();
+      setView("thinkers", push); break;
     case "net": setView("net", push); break;
-    case "list": setView("list", push); break;
+    case "list":
+      if(!$("#v-list").querySelector(".fbtn")) renderList();
+      setView("list", push); break;
     case "entry":
       if(id) showEntry(id, push);
       else { renderEntryIndex(); setView("entry", push); }
