@@ -1854,7 +1854,7 @@ function renderThinkers(){
   let h = `<h2 class="vt">人物索引</h2>
     <div class="vsub">Thinkers · ${rows.length} 位 · 按出生年排序</div>
     <p class="hint">点击人物查看其全部观点与立场关系。带 ◆ 表示已撰有详解页面（${withE} / ${rows.length} 位）。
-      在时间轴上可看到人物之间的支持与否定连线。肖像来自 Wikimedia Commons（公有领域或开放许可）。</p>
+      在时间轴上可看到人物之间的支持与否定连线。肖像来自 Wikimedia Commons（公有领域或开放许可）与百度百科条目配图。</p>
     <div class="thgrid">`;
   rows.forEach(t=>{
     const cs = CLAIMS.filter(c=>c.thinker===t.id);
