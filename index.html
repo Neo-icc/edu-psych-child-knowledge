@@ -155,9 +155,13 @@ main::-webkit-scrollbar-thumb{background:var(--line);border-radius:4px}
   position:sticky;top:0;z-index:20;background:color-mix(in srgb,var(--bg) 92%,transparent);
   backdrop-filter:blur(10px);border-bottom:1px solid var(--line);
   padding:9px 26px;display:flex;align-items:center;gap:8px;
+  /* 中屏放不下时横向滚动，而不是把「理论条目」折成两行 */
+  overflow-x:auto;scrollbar-width:none;
 }
+.topbar::-webkit-scrollbar{display:none}
 .tab{
   padding:6px 14px;font-size:12.5px;color:var(--fg3);cursor:pointer;border-radius:4px;
+  white-space:nowrap;flex-shrink:0;
 }
 .tab:hover{color:var(--fg2);background:var(--bg2)}
 .tab.active{color:var(--accent);background:var(--bg2)}
@@ -806,9 +810,12 @@ function buildNav(){
         const m = isStance ? null : matchEntry(it);
         const has = m || isStance;
         const dom = m ? (m.domain||"") : "";
+        /* data-l2：领域筛选按【导航章节】归类（与概览卡片同口径，避免 110/104 两个数打架）；
+           立场类条目单独归「跨领域立场」 */
+        const secL2 = isStance ? "" : l2.title;
         html += `<div class="item${has?" has-entry":""}" data-item="${esc(it)}"
           data-entry="${m?esc(m.id):""}" data-stance="${isStance?"1":""}"
-          data-domain="${esc(dom)}"
+          data-domain="${esc(dom)}" data-l2="${esc(secL2)}"
           data-flag="${has?"has":"none"}">${esc(it)}</div>`;
       };
       if(hasKids){
@@ -877,7 +884,7 @@ function initNavFilter(){
   if(!sel) return;
   const cnt = new Map();
   document.querySelectorAll("#nav .item").forEach(el=>{
-    const d = el.dataset.domain || "";
+    const d = el.dataset.l2 || "";
     cnt.set(d, (cnt.get(d)||0)+1);
   });
   const total = document.querySelectorAll("#nav .item").length;
@@ -894,7 +901,7 @@ function initNavFilter(){
 function applyNavFilter(){
   let visible = 0;
   document.querySelectorAll("#nav .item").forEach(el=>{
-    const d = el.dataset.domain || "";
+    const d = el.dataset.l2 || "";
     const show = (navFilter==="all") || (navFilter===d);
     el.style.display = show ? "" : "none";
     if(show) visible++;
@@ -2482,6 +2489,7 @@ function initNetInteraction(){
     recomputeNetVisibility();
     simTicks = 0;
     updateNetToggle();
+    renderLegend();   // 让「当前显示 X/167 节点 · Y 连线」读数立即刷新
     drawNet();
   });
 }
@@ -2506,9 +2514,10 @@ function showNodeInfo(n){
 }
 function renderLegend(){
   const L = [["agreement","共识关联","--agree"],["disagreement","分歧对立关联","--disagree"],["lineage","衍生发展关联","--lineage"]];
-  /* 每种类型的连线数（按画布实际边数统计，含 lineage 的 chain 展开） */
+  /* 每种类型的关联数：以原始 RELS 关系计数，与概览统计块、关联列表筛选完全同口径。
+     （此前按画布展开边统计，lineage 链展开成 57 条边，与概览 28 条关系对不上） */
   const cnt = {};
-  netState.edges.forEach(e=>{ cnt[e.type] = (cnt[e.type]||0) + 1; });
+  RELS.forEach(r=>{ cnt[r.type] = (cnt[r.type]||0) + 1; });
   /* 当前真正画出来的规模：节点 / 连线。点击图例后这两个数会立刻变，
      手机窄屏上连线差别细微时也能确定"到底生效了没有" */
   const vis = netState.nodes.filter(n=> n.visible!==false);
