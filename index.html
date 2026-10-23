@@ -365,14 +365,42 @@ ul.ls li::before{content:"—";position:absolute;left:0;color:var(--fg3)}
 /* 人物索引 */
 .thgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:10px;margin-top:8px}
 .thcard{
-  border:1px solid var(--line);border-radius:6px;padding:13px 15px;background:var(--bg2);
+  border:1px solid var(--line);border-radius:6px;padding:14px 15px;background:var(--bg2);
   cursor:pointer;transition:border-color .15s;
+  display:flex;gap:14px;align-items:flex-start;
 }
 .thcard:hover{border-color:var(--accent)}
 .thcard .tn{font-family:var(--serif);font-size:16px;color:var(--fg)}
 .thcard .te{font-size:13px;color:var(--fg3);margin-top:3px}
 .thcard .ty{font-size:13px;color:var(--accent);margin-top:6px;letter-spacing:.03em}
 .thcard .ts2{font-size:13.5px;color:var(--fg3);margin-top:6px;line-height:1.6}
+.thcard .thbody{flex:1;min-width:0}
+/* 人物肖像：统一 62px 圆头像；双人组合两个 44px 小圆对角叠放；加载失败退回首字缩写 */
+.thphbox{
+  width:62px;height:62px;flex:0 0 62px;position:relative;border-radius:50%;
+  background:var(--bg3);border:1px solid var(--line);overflow:hidden;
+}
+.thphbox .thph{width:100%;height:100%;object-fit:cover;display:block}
+.thph-miss{
+  position:absolute;inset:0;display:flex;align-items:center;justify-content:center;
+  font-family:var(--serif);font-size:16px;color:var(--fg3);
+}
+.thphbox.duo{background:transparent;border:none;overflow:visible}
+.thphbox.duo .thph{
+  position:absolute;width:44px;height:44px;border-radius:50%;
+  border:2px solid var(--bg);object-fit:cover;
+}
+.thphbox.duo .thph:first-child{left:0;top:0}
+.thphbox.duo .thph:last-child{right:0;bottom:0}
+.thintro{
+  font-size:13.5px;color:var(--fg2);margin-top:7px;line-height:1.7;
+  display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;
+}
+/* 人物详情页：大号肖像 + 完整简介 */
+.thphbox.lg{width:84px;height:84px;flex:0 0 84px}
+.thphbox.lg.duo .thph{width:56px;height:56px}
+.thphbox.lg .thph-miss{font-size:20px}
+.thintro-open{font-size:15.5px;color:var(--fg2);line-height:1.8;margin-top:14px}
 .clm{
   padding:11px 14px;border-left:2px solid var(--line);margin-bottom:8px;
   background:var(--bg2);border-radius:0 5px 5px 0;
@@ -640,6 +668,9 @@ let ENTRIES = [];
 let REFS = {};
 let VISUALS = {};
 let ENTRIES_READY = false;
+/* 人物照片（Wikimedia Commons 官方肖像，128px base64）与简介，随 chunk 懒加载 */
+let THINKER_PHOTOS = {};
+let THINKER_INTROS = {};
 /* D 板块「立场汇总页」：每条是从多篇详解抽出的跨理论结论，附说明与关联详解，不重复写详解 */
 const STANCE_ITEMS = (DATA.stance && DATA.stance.items) || [];
 const STANCE_BY_TEXT = new Map(STANCE_ITEMS.map(x => [x.text, x]));
@@ -718,6 +749,8 @@ function ensureEntries(){
         ENTRIES = c.entries || [];
         REFS = c.refs || {};
         VISUALS = c.visuals || {};
+        THINKER_PHOTOS = c.thinkerPhotos || {};
+        THINKER_INTROS = c.thinkerIntros || {};
         ENTRIES_READY = true;
         window.__entriesReady = true;
         buildEntryIndexes();
@@ -1815,12 +1848,13 @@ function showTlTip(cl, e){
 
 /* ============ 人物索引 ============ */
 function renderThinkers(){
+  if(!ENTRIES_READY){ ensureEntries().then(()=> renderThinkers()); return; }
   const rows = [...THINKERS].sort((a,b)=> (a.birth||9999)-(b.birth||9999));
   const withE = rows.filter(t=>t.entry).length;
   let h = `<h2 class="vt">人物索引</h2>
     <div class="vsub">Thinkers · ${rows.length} 位 · 按出生年排序</div>
     <p class="hint">点击人物查看其全部观点与立场关系。带 ◆ 表示已撰有详解页面（${withE} / ${rows.length} 位）。
-      在时间轴上可看到人物之间的支持与否定连线。</p>
+      在时间轴上可看到人物之间的支持与否定连线。肖像来自 Wikimedia Commons（公有领域或开放许可）。</p>
     <div class="thgrid">`;
   rows.forEach(t=>{
     const cs = CLAIMS.filter(c=>c.thinker===t.id);
@@ -1833,13 +1867,18 @@ function renderThinkers(){
       const a=CLAIMS.find(x=>x.id===l.from), b=CLAIMS.find(x=>x.id===l.to);
       return l.kind==="negate" && ((a&&a.thinker===t.id)||(b&&b.thinker===t.id));
     }).length;
+    const intro = THINKER_INTROS[t.id] || "";
     h += `<div class="thcard" data-t="${esc(t.id)}">
-      <div class="tn">${esc(t.name)}${t.entry?" ◆":""}</div>
-      <div class="te">${esc(t.nameEn)}</div>
-      <div class="ty">${esc(life)} · 活跃 ${esc(t.active)}</div>
-      <div class="ts2">${esc(t.domain)}<br>${cs.length} 条观点
-        ${sup?`<span class="sc-agree">· ${sup} 支持</span>`:""}
-        ${neg?`<span class="sc-disagree">· ${neg} 否定</span>`:""}</div>
+      ${thinkerPhotoHtml(t.id, "")}
+      <div class="thbody">
+        <div class="tn">${esc(t.name)}${t.entry?" ◆":""}</div>
+        <div class="te">${esc(t.nameEn)}</div>
+        <div class="ty">${esc(life)} · 活跃 ${esc(t.active)}</div>
+        ${intro?`<div class="thintro">${esc(intro)}</div>`:""}
+        <div class="ts2">${esc(t.domain)} · ${cs.length} 条观点
+          ${sup?`<span class="sc-agree">· ${sup} 支持</span>`:""}
+          ${neg?`<span class="sc-disagree">· ${neg} 否定</span>`:""}</div>
+      </div>
     </div>`;
   });
   h += `</div>`;
@@ -1848,7 +1887,23 @@ function renderThinkers(){
     el.onclick = ()=> showThinker(el.dataset.t);
   });
 }
+/* 人物肖像：单人一个圆头像；双人组合两个小圆对角叠放；加载失败退回首字缩写 */
+function thinkerPhotoHtml(tid, cls){
+  const t = THINKERS.find(x=>x.id===tid);
+  const ph = THINKER_PHOTOS[tid];
+  const initials = ((t && t.name) || tid).slice(0,2);
+  const duo = ph && typeof ph === "object";
+  const srcs = duo ? [ph.a, ph.b].filter(Boolean) : (typeof ph === "string" ? [ph] : []);
+  if(srcs.length){
+    return `<div class="thphbox ${esc(cls||"")}${duo?" duo":""}">
+      <span class="thph-miss">${esc(initials)}</span>
+      ${srcs.map(src=>`<img class="thph" src="${src}" alt="${esc((t&&t.name)||"")} 肖像" loading="lazy" onerror="this.style.display='none'">`).join("")}
+    </div>`;
+  }
+  return `<div class="thphbox ${esc(cls||"")}"><span class="thph-miss">${esc(initials)}</span></div>`;
+}
 function showThinker(tid, push=true){
+  if(!ENTRIES_READY){ ensureEntries().then(()=> showThinker(tid, push)); return; }
   const t = THINKERS.find(x=>x.id===tid);
   if(!t) return;
   /* 人物详情渲染在「人物」视图里（原写在「理论条目」容器，导致顶部标签高亮错位） */
@@ -1875,6 +1930,8 @@ function showThinker(tid, push=true){
     </div>
     <h2 class="vt">${esc(t.name)}</h2>
     <div class="vsub">${esc(t.nameEn)}${t.active?` · 活跃 ${esc(t.active)}`:""}</div>
+    ${thinkerPhotoHtml(tid, "lg")}
+    ${THINKER_INTROS[tid]?`<p class="thintro-open">${esc(THINKER_INTROS[tid])}</p>`:""}
     <p class="tx">${esc(t.stance)}</p>`;
   if(t.entry){
     h += `<p class="tx"><span class="listlink" data-entry="${esc(t.entry)}">查看对应详解 ◆</span>
