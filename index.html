@@ -256,6 +256,17 @@ ul.ls li::before{content:"—";position:absolute;left:0;color:var(--fg3)}
   display:flex;align-items:center;justify-content:flex-end;gap:18px;
   padding:9px 20px 8px;border-bottom:1px solid var(--line);flex-wrap:wrap;
 }
+/* wide 视图的紧凑页面标题：时间轴在工具条左端、网络图悬浮在画布左上角 */
+.vt-mini{
+  font-family:var(--serif);font-size:15px;font-weight:600;letter-spacing:.01em;
+  margin-right:auto;
+}
+.vl-title{
+  position:absolute;left:14px;top:14px;z-index:5;
+  font-family:var(--serif);font-size:15px;font-weight:600;color:var(--fg);
+  background:color-mix(in srgb,var(--bg2) 92%,transparent);backdrop-filter:blur(8px);
+  border:1px solid var(--line);border-radius:5px;padding:6px 12px;line-height:1.3;
+}
 #tlwrap{position:relative;height:calc(100vh - 176px);overflow:hidden}
 #tlscroll{position:absolute;inset:0;overflow:auto;overscroll-behavior:contain}
 #tlscroll::-webkit-scrollbar{width:9px;height:9px}
@@ -395,8 +406,9 @@ ul.ls li::before{content:"—";position:absolute;left:0;color:var(--fg3)}
 .jump{color:var(--accent);cursor:pointer;border-bottom:1px dotted color-mix(in srgb,var(--accent) 45%,transparent)}
 .jump:hover{border-bottom-style:solid}
 /* 网络图控制条：手机上没有滚轮，必须给按钮入口 */
-/* 放左上：避开左下角 .nodeinfo 与右下角 .legend，三者互不遮挡 */
-.netctrl{position:absolute;left:14px;top:14px;display:flex;gap:6px;z-index:5;flex-wrap:wrap;max-width:62%}
+/* 四角分工：左上=页面标题+其下方控制条，右上=图例，左下=信息卡，右下留白。
+   此前控制条放右上与图例重叠（图例首行被盖住点不到） */
+.netctrl{position:absolute;left:14px;top:60px;display:flex;gap:6px;z-index:5;flex-wrap:wrap;max-width:56%}
 .netctrl button{
   min-height:30px;padding:6px 10px;font-size:11.5px;font-family:var(--sans);
   border:1px solid var(--line);border-radius:5px;cursor:pointer;
@@ -545,6 +557,7 @@ ul.ls li::before{content:"—";position:absolute;left:0;color:var(--fg3)}
     <div class="view" id="v-entry"></div>
     <div class="view wide" id="v-timeline">
       <div id="tlbar">
+        <div class="vt-mini">观点时间轴</div>
         <div class="tl-legend" id="tllegend"></div>
       </div>
       <div id="tlwrap">
@@ -558,6 +571,7 @@ ul.ls li::before{content:"—";position:absolute;left:0;color:var(--fg3)}
     <div class="view wide" id="v-net">
       <div id="netwrap">
         <canvas id="net"></canvas>
+        <div class="vl-title">关联网络</div>
         <div class="legend" id="legend"></div>
         <div class="netctrl">
           <button id="netzoomin">放大</button>
@@ -865,7 +879,6 @@ function renderEntryIndex(){
     h += `</div>`;
   });
   h += `<h3 class="sh">换个方式浏览</h3><div>
-      <span class="listlink" data-jump-index="1">条目总览</span>
       <span class="listlink" data-view-jump="timeline">观点时间轴</span>
       <span class="listlink" data-view-jump="thinkers">人物索引</span>
       <span class="listlink" data-view-jump="net">关联网络</span>
@@ -1027,7 +1040,6 @@ function renderOverview(){
       <div class="stat"><div class="n">${cs.claims||0}</div><div class="l">观点主张</div></div>
       <div class="stat"><div class="n">${cs.support||0}</div><div class="l">赞同关联</div></div>
       <div class="stat"><div class="n">${cs.negate||0}</div><div class="l">反对关联</div></div>
-      <div class="stat"><div class="n">${cs.yearMax-cs.yearMin||0}</div><div class="l">活跃期跨度（年）</div></div>
     </div>
     <p class="tx" style="font-size:12.5px;color:var(--fg3)">
       人物活跃期 ${cs.yearMin}–${cs.yearMax} ·
@@ -1312,7 +1324,6 @@ function showEntry(id, push=true){
       ${myClaims.length?`<span class="chip">观点 ${myClaims.length}</span>`:""}
     </div>
     <h2 class="vt">${esc(e.title)}</h2>
-    <div class="vsub">① 核心定义 · ② 核心论断 · ③ 学界共识 · ④ 学术分歧 · ⑤ 实证基础 · ⑥ 教育应用</div>
     ${entryVisual(e.id)}
 
     <h3 class="sh">① 核心定义</h3>
