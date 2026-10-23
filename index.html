@@ -697,7 +697,8 @@ function ensureEntries(){
     if(!window.__eduChunkLoading){
       window.__eduChunkLoading = true;
       const s = document.createElement("script");
-      s.src = "data-entries.js";
+      /* 带上当前查询串：托管站要求 sharecode 参数才能访问静态资源（相对路径会丢参导致 403） */
+      s.src = "data-entries.js" + (location.search || "");
       s.onload = ()=>{
         const c = window.__EDU_CHUNK__ || {};
         ENTRIES = c.entries || [];
