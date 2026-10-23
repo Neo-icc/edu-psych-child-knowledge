@@ -689,6 +689,7 @@ const MATCHABLE_ITEMS = (()=>{
 })();
 
 /* ---- P2 条目数据懒加载：正文 / 权威来源 / 配图 ---- */
+window.__entriesReady = false;
 const entriesWaiters = [];
 function ensureEntries(){
   if(ENTRIES_READY) return Promise.resolve();
@@ -705,6 +706,7 @@ function ensureEntries(){
         REFS = c.refs || {};
         VISUALS = c.visuals || {};
         ENTRIES_READY = true;
+        window.__entriesReady = true;
         buildEntryIndexes();
         buildSearchIndex();
         markNavEntries();
