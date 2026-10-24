@@ -2,6 +2,7 @@
 <html lang="zh-CN" data-theme="light">
 <head>
 <meta charset="UTF-8">
+<meta http-equiv="Cache-Control" content="no-store, no-cache, must-revalidate">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>教育学 · 心理学 · 脑科学 · 儿童成长 知识全景导航</title>
 <style>
@@ -795,7 +796,7 @@ function ensureEntries(){
       window.__eduChunkLoading = true;
       const s = document.createElement("script");
       /* 带上当前查询串：托管站要求 sharecode 参数才能访问静态资源（相对路径会丢参导致 403） */
-      s.src = "data-entries.js" + (location.search || "");
+      s.src = "data-entries-1c19a357.js" + (location.search || "");
       s.onload = ()=>{
         const c = window.__EDU_CHUNK__ || {};
         ENTRIES = c.entries || [];
@@ -830,7 +831,7 @@ function ensurePhotos(){
     if(!window.__eduThinkersLoading){
       window.__eduThinkersLoading = true;
       const s = document.createElement("script");
-      s.src = "data-thinkers.js" + (location.search || "");
+      s.src = "data-thinkers-4ed96bd9.js" + (location.search || "");
       s.onload = ()=>{
         const c = window.__EDU_THINKERS__ || {};
         THINKER_PHOTOS = c.thinkerPhotos || {};
