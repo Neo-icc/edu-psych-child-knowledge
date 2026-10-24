@@ -313,6 +313,7 @@ ul.ls li::before{content:"—";position:absolute;left:0;color:var(--fg3)}
 #tl{display:block;cursor:grab}
 #tl:active{cursor:grabbing}
 .tl-legend{display:flex;align-items:center;gap:18px;font-size:13.5px;color:var(--fg2);flex-wrap:wrap}
+.tl-hint{margin-left:auto;font-size:11.5px;color:var(--fg3);opacity:.85;text-align:right}
 .tl-legend div{display:flex;align-items:center;gap:7px;cursor:pointer;user-select:none;
   transition:opacity var(--fast) var(--ease),color var(--fast) var(--ease)}
 .tl-legend div[data-k]:hover{color:var(--fg)}
@@ -487,6 +488,7 @@ ul.ls li::before{content:"—";position:absolute;left:0;color:var(--fg3)}
 /* 四角分工：左上=页面标题+其下方控制条，右上=图例，左下=信息卡，右下留白。
    此前控制条放右上与图例重叠（图例首行被盖住点不到） */
 .netctrl{position:absolute;left:14px;top:60px;display:flex;gap:6px;z-index:5;flex-wrap:wrap;max-width:56%}
+.net-hint{position:absolute;left:14px;bottom:10px;font-size:11.5px;color:var(--fg3);opacity:.85;z-index:4;pointer-events:none;max-width:70%}
 .netctrl button{
   min-height:30px;padding:6px 10px;font-size:13.5px;font-family:var(--sans);
   border:1px solid var(--line);border-radius:5px;cursor:pointer;
@@ -682,6 +684,7 @@ ul.ls li::before{content:"—";position:absolute;left:0;color:var(--fg3)}
       <div id="tlbar">
         <div class="vt-mini">观点时间轴</div>
         <div class="tl-legend" id="tllegend"></div>
+        <div class="tl-hint" id="tlhint">悬停任意观点点，即可查看该观点的完整内容（人物 · 年份 · 主张 · 来源）</div>
       </div>
       <div id="tlwrap">
         <div id="tlscroll">
@@ -702,6 +705,7 @@ ul.ls li::before{content:"—";position:absolute;left:0;color:var(--fg3)}
           <button id="netreset">重置</button>
           <button id="netleaves">显示全部</button>
         </div>
+        <div class="net-hint" id="nethint">悬停任意节点显示其名称与内容；放大到 1.3 倍后小节点文字常显</div>
         <div class="nodeinfo" id="nodeinfo"></div>
       </div>
     </div>
@@ -831,7 +835,7 @@ function ensurePhotos(){
     if(!window.__eduThinkersLoading){
       window.__eduThinkersLoading = true;
       const s = document.createElement("script");
-      s.src = "data-thinkers-4ed96bd9.js" + (location.search || "");
+      s.src = "data-thinkers-4d3b947e.js" + (location.search || "");
       s.onload = ()=>{
         const c = window.__EDU_THINKERS__ || {};
         THINKER_PHOTOS = c.thinkerPhotos || {};
@@ -1841,16 +1845,16 @@ function drawTimeline(){
       ctx.beginPath(); ctx.arc(x,y,r+5,0,Math.PI*2);
       ctx.globalAlpha=.5; ctx.stroke(); ctx.globalAlpha=1;
     }
-    // 高关联度的观点作为标签候选
-    if(deg>=3 || hasEntry) labelCandidates.push({cl, x, y, deg, hasEntry});
+    // 全部观点点进入标签候选：主干点（高关联/有条目）大字，其余小字；数量多时靠避让淘汰
+    labelCandidates.push({cl, x, y, deg, hasEntry, big: deg>=3 || hasEntry});
   });
 
-  // 关键观点文字标签（避让重叠）
-  labelCandidates.sort((a,b)=> b.deg-a.deg);
+  // 观点文字标签（避让重叠；主干点优先大字，小点小字）
+  labelCandidates.sort((a,b)=> (b.big-a.big) || (b.deg-a.deg));
   const placed = [];
-  ctx.font = '10.5px "PingFang SC","Microsoft YaHei",sans-serif';
   labelCandidates.forEach(item=>{
-    if(placed.length >= 26) return;
+    if(placed.length >= 40) return;
+    ctx.font = (item.big ? '10.5px' : '9.5px') + ' "PingFang SC","Microsoft YaHei",sans-serif';
     const short = item.cl.title.length > 13 ? item.cl.title.slice(0,12)+"…" : item.cl.title;
     const w = ctx.measureText(short).width;
     // 贴边标签收进绘图区内，避免右侧被裁切
@@ -1868,11 +1872,31 @@ function drawTimeline(){
     if(clash || hitsDot) return;
     placed.push(box);
     ctx.fillStyle = c.fg2;
-    ctx.globalAlpha = item.hasEntry ? .9 : .62;
+    ctx.globalAlpha = item.big ? (item.hasEntry ? .9 : .62) : .5;
     ctx.textAlign = "center";
     ctx.fillText(short, left + w/2, item.y + 20);
     ctx.globalAlpha = 1;
   });
+
+  /* hover 点的标签强制显示（即使该点因避让被隐藏）：任何点悬停都能读到观点内容 */
+  if(tlState.hover){
+    const hc = CLAIMS.find(x=>x.id===tlState.hover);
+    if(hc && hc.year){
+      const hx = tlState.xOf(hc.year), hy = tlState.yOf(hc.thinker);
+      ctx.font = '11px "PingFang SC","Microsoft YaHei",sans-serif';
+      const short = hc.title.length > 13 ? hc.title.slice(0,12)+"…" : hc.title;
+      const w = ctx.measureText(short).width;
+      const lx = Math.max(ML + 2, Math.min(hx - w/2, ML + plotW - w - 2));
+      const ly = hy - 15;
+      if(ly > 8){
+        ctx.fillStyle = c.bg; ctx.globalAlpha = .9;
+        ctx.fillRect(lx - 4, ly - 11, w + 8, 15);
+        ctx.globalAlpha = 1;
+        ctx.fillStyle = c.fg; ctx.textAlign = "center";
+        ctx.fillText(short, lx + w/2, ly);
+      }
+    }
+  }
 }
 
 function renderTlLegend(){
@@ -2286,7 +2310,7 @@ function showStance(text, push=true){
 
 /* ============ 关联网络力导向图 ============ */
 const netState = { nodes:[], edges:[], show:{agreement:true,disagreement:true,lineage:true},
-  drag:null, offX:0, offY:0, scale:1,
+  drag:null, offX:0, offY:0, scale:1, hover:null,
   compact:false,     // 窄屏（手机）标记
   showLeaves:true,   // 是否显示度数 <2 的叶子节点
   userLeaves:false   // 用户是否手动切换过节点密度（切换后不再被自动策略覆盖）
@@ -2475,6 +2499,7 @@ function drawNet(){
 
   // 节点（先只画圆点，标签统一在下一步做避让）
   const labelQueue = [];
+  const zoomed = (netState.scale||1) >= 1.3;
   vis.forEach(n=>{
     const isHub = n.hub;
     ctx.beginPath(); ctx.arc(n.x,n.y,n.r,0,Math.PI*2);
@@ -2482,18 +2507,23 @@ function drawNet(){
     ctx.globalAlpha = n.entry ? (isHub?1:.85) : .5;
     ctx.fill(); ctx.globalAlpha=1;
     if(isHub){ ctx.strokeStyle=col.agreement; ctx.lineWidth=1.6; ctx.stroke(); }
-    if(n.entry || n.deg>=3) labelQueue.push(n);
+    // 全部节点入队：主干点随时显示；小节点放大（>=1.3）后也参与显示
+    labelQueue.push(n);
   });
 
   /* 标签避让：按关联度从高到低放置，先试节点上方，再试下方；
-     与已放置标签、所有节点圆点做矩形碰撞检测。高关联节点优先，保证读到的都是主干。 */
+     与已放置标签、所有节点圆点做矩形碰撞检测。高关联节点优先，保证读到的都是主干。
+     小节点（无条目且关联度<3）在缩放 <1.3 时仅悬停显示，放大后常显 */
   labelQueue.sort((a,b)=> (b.deg-a.deg) || ((b.entry?1:0)-(a.entry?1:0)));
   const placed = [];
   const visW = W / (netState.scale || 1);
   const visH = H / (netState.scale || 1);
   labelQueue.forEach(n=>{
+    const big = n.hub || n.entry || n.deg>=3;
+    if(!big && !zoomed) return;
     const isHub = n.hub;
-    ctx.font = (isHub?"600 ":"") + (n.deg>=4? "14px":"13px") + ' "PingFang SC","Microsoft YaHei",sans-serif';
+    ctx.font = (isHub?"600 ":"") + (big ? (n.deg>=4 || isHub? "14px":"13px") : "11px")
+      + ' "PingFang SC","Microsoft YaHei",sans-serif';
     const tw = ctx.measureText(n.label).width;
     const lx = Math.max(tw/2 + 4, Math.min(n.x, visW - tw/2 - 4));
     const tries = [
@@ -2512,13 +2542,36 @@ function drawNet(){
       if(clash || hitsDot) continue;
       placed.push(box);
       ctx.fillStyle = col.fg;
-      ctx.globalAlpha = n.entry? .95 : .62;
+      ctx.globalAlpha = n.entry? .95 : (big? .62 : .5);
       ctx.textAlign="center";
       ctx.fillText(n.label, lx, t.y);
       ctx.globalAlpha=1;
       break;
     }
   });
+
+  /* hover 节点：顶层强制显示标签（即使被避让隐藏/未放大），保证每个点都能辨识 */
+  if(netState.hover){
+    const hn = netState.nodes.find(n=>n.id===netState.hover);
+    if(hn && hn.visible!==false){
+      const n = hn;
+      ctx.beginPath(); ctx.arc(n.x,n.y,n.r+4,0,Math.PI*2);
+      ctx.strokeStyle = col.agreement; ctx.lineWidth = 2;
+      ctx.globalAlpha = .55; ctx.stroke(); ctx.globalAlpha = 1;
+      const small = !(n.hub || n.entry || n.deg>=3);
+      ctx.font = (small ? "11px" : "13px") + ' "PingFang SC","Microsoft YaHei",sans-serif';
+      const tw = ctx.measureText(n.label).width;
+      const lx = Math.max(tw/2 + 4, Math.min(n.x, visW - tw/2 - 4));
+      const ly = n.y - n.r - 12;
+      if(ly > 10){
+        ctx.fillStyle = col.bg; ctx.globalAlpha = .9;
+        ctx.fillRect(lx - tw/2 - 4, ly - 11, tw + 8, 15);
+        ctx.globalAlpha = 1;
+        ctx.fillStyle = col.fg; ctx.textAlign = "center";
+        ctx.fillText(n.label, lx, ly);
+      }
+    }
+  }
   /* 帧循环收敛策略：只有「力导向未收敛」或「正在拖拽/平移」且视图可见时才继续跑帧；
      空闲后完全停止（此前是无条件无限循环，即使停留在概览页也在每帧重绘，
      是最隐蔽的持续耗电/卡顿源）。任何状态变化由对应处理器显式 drawNet() 重绘 */
@@ -2547,7 +2600,23 @@ function initNetInteraction(){
     } else if(netState.panning){
       netState.offX = netState.panning.ox + (e.clientX-netState.panning.x);
       netState.offY = netState.panning.oy + (e.clientY-netState.panning.y);
+    } else {
+      /* 悬停检测：任何节点（含无条目小点）悬停即高亮 + 显示标签 */
+      const r = cv.getBoundingClientRect();
+      const mx = (e.clientX-r.left-netState.offX)/netState.scale;
+      const my = (e.clientY-r.top-netState.offY)/netState.scale;
+      const hit = netState.nodes.find(n=> n.visible!==false
+        && Math.hypot(n.x-mx,n.y-my) < n.r+6);
+      const hid = hit ? hit.id : null;
+      if(hid !== netState.hover){
+        netState.hover = hid;
+        cv.style.cursor = hid ? "pointer" : "default";
+        drawNet();
+      }
     }
+  });
+  cv.addEventListener("mouseleave", ()=>{
+    if(netState.hover){ netState.hover = null; cv.style.cursor="default"; drawNet(); }
   });
   window.addEventListener("mouseup", ()=>{ netState.drag=null; netState.panning=null; drawNet(); });
   cv.addEventListener("wheel", e=>{
