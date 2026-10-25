@@ -1,0 +1,306 @@
+{
+  "at": "2026-10-25T08:39:07.887Z",
+  "summary": {
+    "total": 42,
+    "passed": 42,
+    "warns": 0,
+    "fails": 0
+  },
+  "items": [
+    {
+      "group": "内容完整性",
+      "label": "知识点总数",
+      "meta": "586 条",
+      "ok": true,
+      "sev": "fail"
+    },
+    {
+      "group": "内容完整性",
+      "label": "标准条目数",
+      "meta": "454 条",
+      "ok": true,
+      "sev": "fail"
+    },
+    {
+      "group": "内容完整性",
+      "label": "每条均有配图规格",
+      "meta": "缺 0",
+      "ok": true,
+      "sev": "fail"
+    },
+    {
+      "group": "内容完整性",
+      "label": "每条均有权威来源",
+      "meta": "缺 0",
+      "ok": true,
+      "sev": "fail"
+    },
+    {
+      "group": "内容完整性",
+      "label": "每条来源≥2 条",
+      "meta": "不足 0",
+      "ok": true,
+      "sev": "fail"
+    },
+    {
+      "group": "内容完整性",
+      "label": "DOI 覆盖率（透明上报）",
+      "meta": "429 / 909 条带链接",
+      "ok": true,
+      "sev": "fail"
+    },
+    {
+      "group": "内容完整性",
+      "label": "每条引用含年份",
+      "meta": "缺 0",
+      "ok": true,
+      "sev": "fail"
+    },
+    {
+      "group": "内容完整性",
+      "label": "DOI 格式合法",
+      "meta": "异常 0",
+      "ok": true,
+      "sev": "fail"
+    },
+    {
+      "group": "内容完整性",
+      "label": "配图类型合法",
+      "meta": "异常 0",
+      "ok": true,
+      "sev": "fail"
+    },
+    {
+      "group": "内容完整性",
+      "label": "配图标签充足",
+      "meta": "不足 0",
+      "ok": true,
+      "sev": "fail"
+    },
+    {
+      "group": "内容完整性",
+      "label": "分歧为标准对照格式",
+      "meta": "不合规 0",
+      "ok": true,
+      "sev": "fail"
+    },
+    {
+      "group": "内容完整性",
+      "label": "共识≥3 / 分歧≥3",
+      "meta": "共识不足 0 · 分歧不足 0",
+      "ok": true,
+      "sev": "fail"
+    },
+    {
+      "group": "内容完整性",
+      "label": "应用≥2",
+      "meta": "不足 0",
+      "ok": true,
+      "sev": "fail"
+    },
+    {
+      "group": "内容完整性",
+      "label": "定义/实证非空",
+      "meta": "空 0",
+      "ok": true,
+      "sev": "fail"
+    },
+    {
+      "group": "内容完整性",
+      "label": "抽样条目渲染完整",
+      "meta": "抽 7 条 / 异常 0",
+      "ok": true,
+      "sev": "fail"
+    },
+    {
+      "group": "内容完整性",
+      "label": "DOI 链接可点且规范",
+      "meta": "2 条 · target/rel/href 合规",
+      "ok": true,
+      "sev": "fail"
+    },
+    {
+      "group": "无障碍",
+      "label": "正文对比度 ≥3",
+      "meta": "正文 p.tx 6.63 / 列表 ul.ls li 6.63 / 次要 small 3.68 / 来源文本 6.63",
+      "ok": true,
+      "sev": "fail"
+    },
+    {
+      "group": "无障碍",
+      "label": "页面语言声明",
+      "meta": "zh-CN",
+      "ok": true,
+      "sev": "fail"
+    },
+    {
+      "group": "无障碍",
+      "label": "SVG 有 role=img",
+      "meta": "全部",
+      "ok": true,
+      "sev": "fail"
+    },
+    {
+      "group": "无障碍",
+      "label": "SVG 有 aria-label",
+      "meta": "全部",
+      "ok": true,
+      "sev": "fail"
+    },
+    {
+      "group": "无障碍",
+      "label": "外链含 noopener",
+      "meta": "是",
+      "ok": true,
+      "sev": "fail"
+    },
+    {
+      "group": "无障碍",
+      "label": "图片均有 alt",
+      "meta": "缺 0",
+      "ok": true,
+      "sev": "fail"
+    },
+    {
+      "group": "无障碍",
+      "label": "键盘可达元素",
+      "meta": "23 个",
+      "ok": true,
+      "sev": "fail"
+    },
+    {
+      "group": "无障碍",
+      "label": "标题层级唯一 h1",
+      "meta": "1 个",
+      "ok": true,
+      "sev": "fail"
+    },
+    {
+      "group": "布局与视觉",
+      "label": "桌面 无横向溢出",
+      "meta": "溢出 0px",
+      "ok": true,
+      "sev": "fail"
+    },
+    {
+      "group": "布局与视觉",
+      "label": "桌面 内容不越界",
+      "meta": "越界 0 处",
+      "ok": true,
+      "sev": "fail"
+    },
+    {
+      "group": "布局与视觉",
+      "label": "桌面 配图自适应",
+      "meta": "宽 792px",
+      "ok": true,
+      "sev": "fail"
+    },
+    {
+      "group": "布局与视觉",
+      "label": "平板 无横向溢出",
+      "meta": "溢出 0px",
+      "ok": true,
+      "sev": "fail"
+    },
+    {
+      "group": "布局与视觉",
+      "label": "平板 内容不越界",
+      "meta": "越界 0 处",
+      "ok": true,
+      "sev": "fail"
+    },
+    {
+      "group": "布局与视觉",
+      "label": "平板 配图自适应",
+      "meta": "宽 844px",
+      "ok": true,
+      "sev": "fail"
+    },
+    {
+      "group": "布局与视觉",
+      "label": "手机 无横向溢出",
+      "meta": "溢出 0px",
+      "ok": true,
+      "sev": "fail"
+    },
+    {
+      "group": "布局与视觉",
+      "label": "手机 内容不越界",
+      "meta": "越界 0 处",
+      "ok": true,
+      "sev": "fail"
+    },
+    {
+      "group": "布局与视觉",
+      "label": "手机 配图自适应",
+      "meta": "宽 339px",
+      "ok": true,
+      "sev": "fail"
+    },
+    {
+      "group": "布局与视觉",
+      "label": "手机点击目标 ≥28px",
+      "meta": "按钮高 35px",
+      "ok": true,
+      "sev": "fail"
+    },
+    {
+      "group": "布局与视觉",
+      "label": "浅色主题正文对比度",
+      "meta": "6.63",
+      "ok": true,
+      "sev": "fail"
+    },
+    {
+      "group": "布局与视觉",
+      "label": "浅色主题链接对比度",
+      "meta": "4.77",
+      "ok": true,
+      "sev": "fail"
+    },
+    {
+      "group": "布局与视觉",
+      "label": "关联网络无越界节点",
+      "meta": "越界 0 / 167",
+      "ok": true,
+      "sev": "fail"
+    },
+    {
+      "group": "运行时与性能",
+      "label": "DOM 节点数 < 4000",
+      "meta": "1032",
+      "ok": true,
+      "sev": "fail"
+    },
+    {
+      "group": "运行时与性能",
+      "label": "外部请求仅条目/人物数据 chunk",
+      "meta": "data-entries-93028ac5.js,data-thinkers-af2cf96e.js",
+      "ok": true,
+      "sev": "fail"
+    },
+    {
+      "group": "运行时与性能",
+      "label": "人物肖像全部内嵌（无外链）",
+      "meta": "59 张 · 外链 0",
+      "ok": true,
+      "sev": "fail"
+    },
+    {
+      "group": "运行时与性能",
+      "label": "加载耗时 < 2500ms",
+      "meta": "296ms",
+      "ok": true,
+      "sev": "fail"
+    },
+    {
+      "group": "运行时与性能",
+      "label": "控制台无错误/警告",
+      "meta": "0 条",
+      "ok": true,
+      "sev": "fail"
+    }
+  ],
+  "console": []
+}

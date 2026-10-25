@@ -1,0 +1,187 @@
+{
+  "generatedAt": "2026-10-24T12:52:25.158Z",
+  "page": "dist/index.html",
+  "shots": [
+    {
+      "file": "shots/01-overview.jpg",
+      "title": "概览",
+      "desc": "全站规模、五大领域入口、内容完成度告知",
+      "group": "桌面 1440×900",
+      "width": 1440,
+      "height": 900,
+      "bytes": 129335
+    },
+    {
+      "file": "shots/02-navtree.jpg",
+      "title": "侧边栏分类树",
+      "desc": "5 板块 / 43 主题 / 586 知识点完整树（原「分类导航」视图已并入侧边栏），顶部为学科领域下拉筛选",
+      "group": "桌面 1440×900",
+      "width": 1440,
+      "height": 900,
+      "bytes": 140224
+    },
+    {
+      "file": "shots/03-entry-index.jpg",
+      "title": "理论条目 · 总览",
+      "desc": "454 篇详解按五个领域分组，含脑科学序列",
+      "group": "桌面 1440×900",
+      "width": 1440,
+      "height": 900,
+      "bytes": 140224
+    },
+    {
+      "file": "shots/04-entry-detail.jpg",
+      "title": "条目详情 · 青少年脑发育",
+      "desc": "六个部分 + 观点主张与立场连线 + 关联理论（脑科学序列新增条目）",
+      "group": "桌面 1440×900",
+      "width": 1440,
+      "height": 900,
+      "bytes": 133924
+    },
+    {
+      "file": "shots/05-entry-b2.jpg",
+      "title": "条目详情 · 敏感期",
+      "desc": "成长维度的脑科学条目，完整呈现关键期与敏感期的学界分歧",
+      "group": "桌面 1440×900",
+      "width": 1440,
+      "height": 900,
+      "bytes": 128937
+    },
+    {
+      "file": "shots/06-timeline.jpg",
+      "title": "观点时间轴",
+      "desc": "54 位人物分行 × 1880–2020 年代轴，绿实线=支持、红虚线=否定；脑科学人物已并入同一时间轴",
+      "group": "桌面 1440×900",
+      "width": 1440,
+      "height": 900,
+      "bytes": 159814
+    },
+    {
+      "file": "shots/06b-tl-card.jpg",
+      "title": "时间轴 · 点击观点 → 说明卡",
+      "desc": "102 个观点点均有文字标注；点击观点点弹出说明卡（不直接跳页），卡内链接才跳转详解/人物页",
+      "group": "桌面 1440×900",
+      "width": 1440,
+      "height": 900,
+      "bytes": 156481
+    },
+    {
+      "file": "shots/07-thinkers.jpg",
+      "title": "人物索引",
+      "desc": "54 张卡片按出生年排序，标注观点与立场数",
+      "group": "桌面 1440×900",
+      "width": 1440,
+      "height": 900,
+      "bytes": 57348
+    },
+    {
+      "file": "shots/08-net.jpg",
+      "title": "关联网络",
+      "desc": "167 节点 / 134 边；布局自动归一化到画布内，每个可见节点均有文字标注（零重叠 + 引导线）",
+      "group": "桌面 1440×900",
+      "width": 1440,
+      "height": 900,
+      "bytes": 235786
+    },
+    {
+      "file": "shots/08b-net-card.jpg",
+      "title": "关联网络 · 点击节点 → 说明卡",
+      "desc": "说明卡锚定被点击节点四向智能放置，避开图例/标题/控制按钮，左下角提示自动隐藏（无重影）",
+      "group": "桌面 1440×900",
+      "width": 1440,
+      "height": 900,
+      "bytes": 220674
+    },
+    {
+      "file": "shots/08c-net-narrow.jpg",
+      "title": "关联网络 · 窄屏底部布局",
+      "desc": "图例在右下角、提示文字在左下角分区排布零重叠（600px 以下提示自动隐藏）",
+      "group": "窄屏 700×844",
+      "width": 700,
+      "height": 844,
+      "bytes": 170148
+    },
+    {
+      "file": "shots/09-list.jpg",
+      "title": "关联列表",
+      "desc": "107 条理论关联按共识 / 分歧 / 衍生筛选",
+      "group": "桌面 1440×900",
+      "width": 1440,
+      "height": 900,
+      "bytes": 57475
+    },
+    {
+      "file": "shots/10-search.jpg",
+      "title": "全局搜索",
+      "desc": "搜「皮质醇」命中脑科学条目正文（全文索引覆盖条目、共识、分歧与观点）",
+      "group": "桌面 1440×900",
+      "width": 1440,
+      "height": 900,
+      "bytes": 143892
+    },
+    {
+      "file": "shots/11-pending.jpg",
+      "title": "脑科学领域展开",
+      "desc": "第五领域「脑科学与学习」全部知识点均有详解（领域卡片直达条目总览并定位）",
+      "group": "桌面 1440×900",
+      "width": 1440,
+      "height": 900,
+      "bytes": 143803
+    },
+    {
+      "file": "shots/12-filter.jpg",
+      "title": "学科领域筛选",
+      "desc": "侧边栏按学科领域筛选：选中某一领域后侧边栏即时收敛（原「已有条目/待生成」三态已失去区分度）",
+      "group": "桌面 1440×900",
+      "width": 1440,
+      "height": 900,
+      "bytes": 141354
+    },
+    {
+      "file": "shots/12b-stance.jpg",
+      "title": "立场维度 · D 板块",
+      "desc": "D 板块 24 条立场条目不重复写详解，改为立场汇总页：结论 + 说明 + 关联条目 + 代表人物 + 探索入口",
+      "group": "桌面 1440×900",
+      "width": 1440,
+      "height": 900,
+      "bytes": 138742
+    },
+    {
+      "file": "shots/13-theme-light.jpg",
+      "title": "浅色主题",
+      "desc": "明暗主题切换（偏好记忆），画布同步重绘",
+      "group": "桌面 1440×900",
+      "width": 1440,
+      "height": 900,
+      "bytes": 134266
+    },
+    {
+      "file": "shots/14-m-timeline.jpg",
+      "title": "移动端时间轴",
+      "desc": "窄屏横向滚动承接 900px 画布，图例固定在顶部横条",
+      "group": "移动端 390×844",
+      "width": 390,
+      "height": 844,
+      "bytes": 49531
+    },
+    {
+      "file": "shots/15-m-drawer.jpg",
+      "title": "移动端抽屉导航",
+      "desc": "☰ 抽屉式侧边栏，可见新增的第 5 领域「脑科学与学习」",
+      "group": "移动端 390×844",
+      "width": 390,
+      "height": 844,
+      "bytes": 51378
+    },
+    {
+      "file": "shots/16-narrow-entry.jpg",
+      "title": "窄屏条目页",
+      "desc": "六个部分在 390px 下重排为单列（脑科学条目 B4）",
+      "group": "移动端 390×844",
+      "width": 390,
+      "height": 844,
+      "bytes": 56800
+    }
+  ],
+  "consoleErrors": []
+}
